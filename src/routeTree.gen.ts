@@ -9,30 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as NovagitxRouteImport } from './routes/novagitx'
-import { Route as NovafinderRouteImport } from './routes/novafinder'
-import { Route as LumiaRouteImport } from './routes/lumia'
-import { Route as CirrusRouteImport } from './routes/cirrus'
+import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as IndexRouteImport } from './routes/index'
 
-const NovagitxRoute = NovagitxRouteImport.update({
-  id: '/novagitx',
-  path: '/novagitx',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NovafinderRoute = NovafinderRouteImport.update({
-  id: '/novafinder',
-  path: '/novafinder',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LumiaRoute = LumiaRouteImport.update({
-  id: '/lumia',
-  path: '/lumia',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CirrusRoute = CirrusRouteImport.update({
-  id: '/cirrus',
-  path: '/cirrus',
+const SlugRoute = SlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,70 +25,37 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/cirrus': typeof CirrusRoute
-  '/lumia': typeof LumiaRoute
-  '/novafinder': typeof NovafinderRoute
-  '/novagitx': typeof NovagitxRoute
+  '/$slug': typeof SlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/cirrus': typeof CirrusRoute
-  '/lumia': typeof LumiaRoute
-  '/novafinder': typeof NovafinderRoute
-  '/novagitx': typeof NovagitxRoute
+  '/$slug': typeof SlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/cirrus': typeof CirrusRoute
-  '/lumia': typeof LumiaRoute
-  '/novafinder': typeof NovafinderRoute
-  '/novagitx': typeof NovagitxRoute
+  '/$slug': typeof SlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cirrus' | '/lumia' | '/novafinder' | '/novagitx'
+  fullPaths: '/' | '/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cirrus' | '/lumia' | '/novafinder' | '/novagitx'
-  id: '__root__' | '/' | '/cirrus' | '/lumia' | '/novafinder' | '/novagitx'
+  to: '/' | '/$slug'
+  id: '__root__' | '/' | '/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CirrusRoute: typeof CirrusRoute
-  LumiaRoute: typeof LumiaRoute
-  NovafinderRoute: typeof NovafinderRoute
-  NovagitxRoute: typeof NovagitxRoute
+  SlugRoute: typeof SlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/novagitx': {
-      id: '/novagitx'
-      path: '/novagitx'
-      fullPath: '/novagitx'
-      preLoaderRoute: typeof NovagitxRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/novafinder': {
-      id: '/novafinder'
-      path: '/novafinder'
-      fullPath: '/novafinder'
-      preLoaderRoute: typeof NovafinderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lumia': {
-      id: '/lumia'
-      path: '/lumia'
-      fullPath: '/lumia'
-      preLoaderRoute: typeof LumiaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cirrus': {
-      id: '/cirrus'
-      path: '/cirrus'
-      fullPath: '/cirrus'
-      preLoaderRoute: typeof CirrusRouteImport
+    '/$slug': {
+      id: '/$slug'
+      path: '/$slug'
+      fullPath: '/$slug'
+      preLoaderRoute: typeof SlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -121,10 +70,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CirrusRoute: CirrusRoute,
-  LumiaRoute: LumiaRoute,
-  NovafinderRoute: NovafinderRoute,
-  NovagitxRoute: NovagitxRoute,
+  SlugRoute: SlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

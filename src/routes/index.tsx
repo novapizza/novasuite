@@ -1,17 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ProductPage } from "@/components/ProductPage";
 import { getProduct } from "@/lib/products";
+import { productHead } from "@/lib/product-head";
 
-const product = getProduct("novapad");
+const product = getProduct("novapad")!;
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: `${product.name} — ${product.tagline} | Nova Suite` },
-      { name: "description", content: product.description },
-      { property: "og:title", content: `${product.name} — ${product.tagline}` },
-      { property: "og:description", content: product.description },
-    ],
-  }),
+  head: () => productHead(product),
   component: () => <ProductPage product={product} />,
 });

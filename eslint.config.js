@@ -33,8 +33,13 @@ export default tseslint.config(
         },
       ],
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
-      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" },
+      ],
     },
   },
+  // Generated files: keep noise out of the report.
+  { ignores: ["src/routeTree.gen.ts"] },
   eslintPluginPrettier,
 );

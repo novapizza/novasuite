@@ -3,36 +3,37 @@ import { Moon, Sun } from "lucide-react";
 
 type Theme = "light" | "dark";
 
-function getInitial(): Theme {
-  if (typeof window === "undefined") return "dark";
-  const stored = localStorage.getItem("theme") as Theme | null;
-  if (stored === "light" || stored === "dark") return stored;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme | null>(null);
 
   useEffect(() => {
-    const t = getInitial();
-    setTheme(t);
-    document.documentElement.classList.toggle("dark", t === "dark");
+    setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light");
   }, []);
 
   const toggle = () => {
     const next: Theme = theme === "dark" ? "light" : "dark";
     setTheme(next);
     document.documentElement.classList.toggle("dark", next === "dark");
-    localStorage.setItem("theme", next);
+    try {
+      localStorage.setItem("theme", next);
+    } catch {
+      // ignore quota or disabled-storage errors
+    }
   };
 
   return (
     <button
+      type="button"
       onClick={toggle}
       aria-label="Toggle theme"
       className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card/80 text-foreground transition-colors hover:bg-card"
     >
-      {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      {/* Render nothing until mounted — pre-hydration the inline theme script may already have set .dark, so we read from the DOM to avoid an icon flicker. */}
+      {theme === "dark" ? (
+        <Sun className="h-4 w-4" />
+      ) : theme === "light" ? (
+        <Moon className="h-4 w-4" />
+      ) : null}
     </button>
   );
 }

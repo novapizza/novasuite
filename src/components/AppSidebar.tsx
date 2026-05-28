@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { products } from "@/lib/products";
+import { getProductRoute, products } from "@/lib/products";
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -40,7 +40,12 @@ export function AppSidebar() {
             <SidebarMenu>
               {products.map((p) => {
                 const Icon = p.icon;
-                const active = pathname === p.route;
+                const route = getProductRoute(p.slug);
+                const active = pathname === route;
+                const linkProps =
+                  p.slug === "novapad"
+                    ? ({ to: "/" } as const)
+                    : ({ to: "/$slug", params: { slug: p.slug } } as const);
                 return (
                   <SidebarMenuItem key={p.slug}>
                     <SidebarMenuButton
@@ -49,7 +54,7 @@ export function AppSidebar() {
                       tooltip={p.name}
                       className="h-11 gap-3"
                     >
-                      <Link to={p.route}>
+                      <Link {...linkProps}>
                         <span
                           className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-sidebar-border bg-card shadow-sm"
                           style={{ color: p.accent }}

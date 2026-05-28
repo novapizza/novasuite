@@ -1,27 +1,31 @@
 // Captures the original Error out-of-band so server.ts can recover the stack
 // when h3 has already swallowed the throw into a generic 500 Response.
 
-let lastCapturedError: { error: unknown; at: number } | undefined;
+type Capture = { error: unknown; at: number };
+type CaptureGlobal = typeof globalThis & {
+  __novaErrCapInstalled?: boolean;
+  __novaErrCapLast?: Capture;
+};
+
 const TTL_MS = 5_000;
+const g = globalThis as CaptureGlobal;
 
 function record(error: unknown) {
-  lastCapturedError = { error, at: Date.now() };
+  g.__novaErrCapLast = { error, at: Date.now() };
 }
 
-if (typeof globalThis.addEventListener === "function") {
-  globalThis.addEventListener("error", (event) => record((event as ErrorEvent).error ?? event));
-  globalThis.addEventListener("unhandledrejection", (event) =>
+if (!g.__novaErrCapInstalled && typeof g.addEventListener === "function") {
+  g.addEventListener("error", (event) => record((event as ErrorEvent).error ?? event));
+  g.addEventListener("unhandledrejection", (event) =>
     record((event as PromiseRejectionEvent).reason),
   );
+  g.__novaErrCapInstalled = true;
 }
 
 export function consumeLastCapturedError(): unknown {
-  if (!lastCapturedError) return undefined;
-  if (Date.now() - lastCapturedError.at > TTL_MS) {
-    lastCapturedError = undefined;
-    return undefined;
-  }
-  const { error } = lastCapturedError;
-  lastCapturedError = undefined;
-  return error;
+  const last = g.__novaErrCapLast;
+  if (!last) return undefined;
+  g.__novaErrCapLast = undefined;
+  if (Date.now() - last.at > TTL_MS) return undefined;
+  return last.error;
 }
