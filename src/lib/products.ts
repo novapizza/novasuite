@@ -58,9 +58,21 @@ export type Product = {
   accent: string;
   platforms: Platform[];
   downloads: { label: string; href: string | null; platform: Platform }[];
+  release?: {
+    baseUrl: string;
+    manifests: {
+      mac: string;
+      windows?: string;
+    };
+  };
   features: { icon: LucideIcon; title: string; body: string }[];
   stack: { label: string; value: string }[];
 };
+
+const NOVAGITX_X64_URL =
+  "https://pub-1841f7e00ed14c2da91ef9b585ba06e8.r2.dev/NovaGitX-0.9.1-x64-mac.dmg";
+const NOVAGITX_ARM64_URL =
+  "https://pub-1841f7e00ed14c2da91ef9b585ba06e8.r2.dev/NovaGitX-0.9.1-arm64-mac.dmg";
 
 export const products: Product[] = [
   {
@@ -73,10 +85,17 @@ export const products: Product[] = [
     icon: FileText,
     accent: "#818cf8",
     platforms: ["mac", "windows"],
+    release: {
+      baseUrl: "https://pub-d2278ebfc6e74887b1c58c069c7119e7.r2.dev",
+      manifests: {
+        mac: "latest-mac.yml",
+        windows: "latest.yml",
+      },
+    },
     downloads: [
       {
         label: "Download for Mac",
-        href: "https://pub-d2278ebfc6e74887b1c58c069c7119e7.r2.dev/NovaPad-arm64.dmg",
+        href: null,
         platform: "mac",
       },
       { label: "Download for Windows", href: null, platform: "windows" },
@@ -120,7 +139,17 @@ export const products: Product[] = [
     icon: Camera,
     accent: "#fb7185",
     platforms: ["mac", "windows"],
-    downloads: [{ label: "Download", href: "https://lumia.asia/", platform: "mac" }],
+    release: {
+      baseUrl: "https://release.lumia.asia",
+      manifests: {
+        mac: "latest-mac.yml",
+        windows: "latest.yml",
+      },
+    },
+    downloads: [
+      { label: "Download for Mac", href: null, platform: "mac" },
+      { label: "Download for Windows", href: null, platform: "windows" },
+    ],
     features: [
       {
         icon: Camera,
@@ -159,12 +188,14 @@ export const products: Product[] = [
     blurb: "Spotlight, rethought.",
     icon: FolderSearch,
     accent: "#67e8f9",
-    platforms: ["mac", "windows", "linux"],
-    downloads: [
-      { label: "Download for Mac", href: null, platform: "mac" },
-      { label: "Download for Windows", href: null, platform: "windows" },
-      { label: "Download for Linux", href: null, platform: "linux" },
-    ],
+    platforms: ["mac"],
+    release: {
+      baseUrl: "https://pub-de252b6499d04b519a15bbeb1b89f4ec.r2.dev",
+      manifests: {
+        mac: "latest-mac.yml",
+      },
+    },
+    downloads: [{ label: "Download for Mac", href: null, platform: "mac" }],
     features: [
       {
         icon: Search,
@@ -203,11 +234,10 @@ export const products: Product[] = [
     blurb: "Git, graceful.",
     icon: GitBranch,
     accent: "#a78bfa",
-    platforms: ["mac", "windows", "linux"],
+    platforms: ["mac"],
     downloads: [
-      { label: "Download for Mac", href: null, platform: "mac" },
-      { label: "Download for Windows", href: null, platform: "windows" },
-      { label: "Download for Linux", href: null, platform: "linux" },
+      { label: "Download for Mac (Apple Silicon)", href: NOVAGITX_ARM64_URL, platform: "mac" },
+      { label: "Download for Mac (Intel)", href: NOVAGITX_X64_URL, platform: "mac" },
     ],
     features: [
       {
@@ -381,6 +411,65 @@ export function isProductSlug(value: string): value is ProductSlug {
 
 export function getProduct(slug: string): Product | undefined {
   return products.find((p) => p.slug === slug);
+}
+
+export async function fetchLatestReleaseManifest(
+  product: Product,
+  platform: "mac" | "windows",
+  arch: "x64" | "arm64",
+) {
+  const release = product.release;
+  if (!release) {
+    return { version: null, href: null };
+  }
+
+  const manifestName = release.manifests[platform];
+  if (!manifestName) {
+    return { version: null, href: null };
+  }
+
+  const manifestUrl = joinUrl(release.baseUrl, manifestName);
+  const response = await fetch(manifestUrl);
+  if (!response.ok) {
+    return { version: null, href: null };
+  }
+
+  const content = await response.text();
+  const version = parseVersionFromYaml(content);
+  const assetPath = parsePathFromYaml(content);
+  if (!assetPath) {
+    return { version, href: null };
+  }
+
+  const patchedPath = patchPathForArch(assetPath, arch);
+  const href = assetPath.startsWith("http")
+    ? patchedPath
+    : joinUrl(release.baseUrl, patchedPath);
+  return { version, href };
+}
+
+function parseVersionFromYaml(content: string): string | null {
+  const versionMatch = content.match(/^\s*version\s*:\s*['"]?([^'"#\r\n]+?)['"]?\s*(?:#.*)?$/im);
+  return versionMatch ? versionMatch[1].trim() : null;
+}
+
+function parsePathFromYaml(content: string): string | null {
+  const pathMatch = content.match(/^\s*path\s*:\s*(.+)$/im);
+  return pathMatch ? pathMatch[1].trim() : null;
+}
+
+function patchPathForArch(path: string, arch: "x64" | "arm64") {
+  if (arch === "arm64" && /x64|x86_64|amd64/i.test(path)) {
+    return path.replace(/x86_64|amd64|x64/gi, "arm64");
+  }
+  if (arch === "x64" && /arm64/i.test(path)) {
+    return path.replace(/arm64/gi, "x64");
+  }
+  return path;
+}
+
+function joinUrl(baseUrl: string, assetPath: string) {
+  return `${baseUrl.replace(/\/+$/u, "")}/${assetPath.replace(/^\/+/, "")}`;
 }
 
 export function getProductRoute(slug: ProductSlug): string {

@@ -1,7 +1,9 @@
 import { Apple, AppWindow, Download, Globe, Terminal } from "lucide-react";
 import type { ComponentProps } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ProductMockup } from "@/components/ProductMockup";
 import type { Platform, Product } from "@/lib/products";
+import { fetchLatestReleaseManifest } from "@/lib/products";
 import { cn } from "@/lib/utils";
 
 const platformLabels: Record<Platform, string> = {
@@ -24,6 +26,21 @@ type DownloadButtonProps = {
   showDownloadIcon?: boolean;
   className?: string;
 };
+
+type ReleaseData = Partial<Record<Platform, { version?: string; href?: string }>>;
+
+async function detectClientArch(): Promise<"x64" | "arm64"> {
+  if (typeof navigator === "undefined") return "x64";
+  if ("userAgentData" in navigator) {
+    try {
+      const data = await (navigator as { userAgentData: { getHighEntropyValues: (h: string[]) => Promise<{ architecture?: string }> } }).userAgentData.getHighEntropyValues(["architecture"]);
+      if (data.architecture === "arm") return "arm64";
+    } catch {
+      // fall through to UA string
+    }
+  }
+  return /arm64|aarch64/i.test(navigator.userAgent) ? "arm64" : "x64";
+}
 
 function DownloadButton({ download, variant, showDownloadIcon, className }: DownloadButtonProps) {
   const base =
@@ -71,7 +88,56 @@ function DownloadButton({ download, variant, showDownloadIcon, className }: Down
 
 export function ProductPage({ product }: { product: Product }) {
   const Icon = product.icon;
-  const [primary, ...rest] = product.downloads;
+  const primary = product.downloads[0];
+  const [releaseData, setReleaseData] = useState<ReleaseData>({});
+
+  useEffect(() => {
+    let active = true;
+    async function loadReleaseData() {
+      try {
+        const arch = await detectClientArch();
+        const updated: ReleaseData = {};
+
+        await Promise.all(
+          product.downloads.map(async (download) => {
+            if (download.href !== null) return;
+            if (download.platform !== "mac" && download.platform !== "windows") return;
+            const result = await fetchLatestReleaseManifest(product, download.platform, arch);
+            if (!active) return;
+            updated[download.platform] = {
+              version: result.version ?? undefined,
+              href: result.href ?? undefined,
+            };
+          }),
+        );
+
+        if (active) {
+          setReleaseData((current) => ({ ...current, ...updated }));
+        }
+      } catch {
+        // network failure — leave releaseData empty, buttons stay in their current state
+      }
+    }
+
+    loadReleaseData();
+    return () => {
+      active = false;
+    };
+  }, [product]);
+
+  const version = useMemo(() => {
+    const primaryVersion = releaseData[primary.platform]?.version;
+    if (primaryVersion) return primaryVersion;
+    const fallback = Object.values(releaseData).find((item) => item?.version)?.version;
+    return fallback;
+  }, [primary.platform, releaseData]);
+
+  const downloads = product.downloads.map((download) => ({
+    ...download,
+    href: download.href ?? releaseData[download.platform]?.href ?? null,
+  }));
+
+  const [computedPrimary, ...computedRest] = downloads;
 
   return (
     <div className="mx-auto w-full max-w-[1200px] px-4 pb-10 pt-4 sm:px-5 md:px-7">
@@ -123,15 +189,15 @@ export function ProductPage({ product }: { product: Product }) {
           </p>
 
           <div className="mt-4 flex flex-wrap gap-2 sm:gap-3">
-            <DownloadButton download={primary} variant="primary" showDownloadIcon />
-            {rest.map((d) => (
+            <DownloadButton download={computedPrimary} variant="primary" showDownloadIcon />
+            {computedRest.map((d) => (
               <DownloadButton key={d.label} download={d} variant="secondary" />
             ))}
           </div>
 
           <div className="mt-3 flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-            Latest version · MIT licensed
+            {version ? `Latest version ${version} · MIT licensed` : "Latest version · MIT licensed"}
           </div>
         </div>
 
@@ -221,8 +287,8 @@ export function ProductPage({ product }: { product: Product }) {
               people who care about the details.
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-2 sm:gap-3">
-              <DownloadButton download={primary} variant="primary" showDownloadIcon />
-              {rest.map((d) => (
+              <DownloadButton download={computedPrimary} variant="primary" showDownloadIcon />
+              {computedRest.map((d) => (
                 <DownloadButton key={d.label} download={d} variant="secondary" />
               ))}
             </div>

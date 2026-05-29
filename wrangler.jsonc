@@ -4,4 +4,10 @@
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
   "main": "src/server.ts",
+  "routes": [
+    { "pattern": "novasuite.coding4pizza.com/*", "zone_name": "coding4pizza.com" }
+  ],
+  "custom_domains": [
+    { "hostname": "novasuite.coding4pizza.com" }
+  ],
 }
