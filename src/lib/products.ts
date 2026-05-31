@@ -57,7 +57,7 @@ export type Product = {
   icon: LucideIcon;
   accent: string;
   platforms: Platform[];
-  downloads: { label: string; href: string | null; platform: Platform }[];
+  downloads: { label: string; href: string | null; platform: Platform; arch?: "x64" | "arm64" }[];
   release?: {
     baseUrl: string;
     manifests: {
@@ -68,11 +68,6 @@ export type Product = {
   features: { icon: LucideIcon; title: string; body: string }[];
   stack: { label: string; value: string }[];
 };
-
-const NOVAGITX_X64_URL =
-  "https://pub-1841f7e00ed14c2da91ef9b585ba06e8.r2.dev/NovaGitX-0.9.1-x64-mac.dmg";
-const NOVAGITX_ARM64_URL =
-  "https://pub-1841f7e00ed14c2da91ef9b585ba06e8.r2.dev/NovaGitX-0.9.1-arm64-mac.dmg";
 
 export const products: Product[] = [
   {
@@ -221,8 +216,8 @@ export const products: Product[] = [
     stack: [
       { label: "Indexer", value: "Tantivy" },
       { label: "UI framework", value: "React 18" },
-      { label: "Runtime", value: "Tauri 2" },
-      { label: "Language", value: "Rust + TypeScript" },
+      { label: "Runtime", value: "Electron" },
+      { label: "Language", value: "TypeScript" },
     ],
   },
   {
@@ -235,9 +230,15 @@ export const products: Product[] = [
     icon: GitBranch,
     accent: "#a78bfa",
     platforms: ["mac"],
+    release: {
+      baseUrl: "https://pub-1841f7e00ed14c2da91ef9b585ba06e8.r2.dev",
+      manifests: {
+        mac: "latest-mac.yml",
+      },
+    },
     downloads: [
-      { label: "Download for Mac (Apple Silicon)", href: NOVAGITX_ARM64_URL, platform: "mac" },
-      { label: "Download for Mac (Intel)", href: NOVAGITX_X64_URL, platform: "mac" },
+      { label: "Download for Mac (Apple Silicon)", href: null, platform: "mac", arch: "arm64" },
+      { label: "Download for Mac (Intel)", href: null, platform: "mac", arch: "x64" },
     ],
     features: [
       {
@@ -264,8 +265,8 @@ export const products: Product[] = [
     stack: [
       { label: "Engine", value: "libgit2" },
       { label: "UI framework", value: "React 18" },
-      { label: "Runtime", value: "Tauri 2" },
-      { label: "Language", value: "Rust + TypeScript" },
+      { label: "Runtime", value: "Electron" },
+      { label: "Language", value: "TypeScript" },
     ],
   },
   {
