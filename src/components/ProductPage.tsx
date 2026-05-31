@@ -27,7 +27,11 @@ type DownloadButtonProps = {
   className?: string;
 };
 
-type ReleaseData = Partial<Record<Platform, { version?: string; href?: string }>>;
+type ReleaseData = Record<string, { version?: string; href?: string }>;
+
+function downloadKey(platform: Platform, arch?: "x64" | "arm64") {
+  return arch ? `${platform}:${arch}` : platform;
+}
 
 async function detectClientArch(): Promise<"x64" | "arm64"> {
   if (typeof navigator === "undefined") return "x64";
@@ -95,16 +99,17 @@ export function ProductPage({ product }: { product: Product }) {
     let active = true;
     async function loadReleaseData() {
       try {
-        const arch = await detectClientArch();
+        const clientArch = await detectClientArch();
         const updated: ReleaseData = {};
 
         await Promise.all(
           product.downloads.map(async (download) => {
             if (download.href !== null) return;
             if (download.platform !== "mac" && download.platform !== "windows") return;
+            const arch = download.arch ?? clientArch;
             const result = await fetchLatestReleaseManifest(product, download.platform, arch);
             if (!active) return;
-            updated[download.platform] = {
+            updated[downloadKey(download.platform, download.arch)] = {
               version: result.version ?? undefined,
               href: result.href ?? undefined,
             };
@@ -126,15 +131,15 @@ export function ProductPage({ product }: { product: Product }) {
   }, [product]);
 
   const version = useMemo(() => {
-    const primaryVersion = releaseData[primary.platform]?.version;
+    const primaryVersion = releaseData[downloadKey(primary.platform, primary.arch)]?.version;
     if (primaryVersion) return primaryVersion;
     const fallback = Object.values(releaseData).find((item) => item?.version)?.version;
     return fallback;
-  }, [primary.platform, releaseData]);
+  }, [primary.platform, primary.arch, releaseData]);
 
   const downloads = product.downloads.map((download) => ({
     ...download,
-    href: download.href ?? releaseData[download.platform]?.href ?? null,
+    href: download.href ?? releaseData[downloadKey(download.platform, download.arch)]?.href ?? null,
   }));
 
   const [computedPrimary, ...computedRest] = downloads;
