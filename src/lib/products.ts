@@ -320,15 +320,27 @@ export const products: Product[] = [
     name: "nmtr",
     tagline: { lead: "Network diagnostics,", accent: "reimagined live." },
     description:
-      "A modern Windows app that fuses continuous traceroute with real-time ping into a single live dashboard — per-hop stats, offline geolocation, and full session recording.",
+      "A modern app that fuses continuous traceroute with real-time ping into a single live dashboard — per-hop stats, offline geolocation, and full session recording. Available on Mac and Windows.",
     blurb: "Live network.",
     icon: Activity,
     accent: "#fbbf24",
-    platforms: ["windows"],
+    platforms: ["mac", "windows"],
+    release: {
+      baseUrl: "https://pub-153a98778378495eb01f90435c7b392a.r2.dev",
+      manifests: {
+        mac: "latest-mac.yml",
+        windows: "latest.yml",
+      },
+    },
     downloads: [
       {
-        label: "Releases on GitHub",
-        href: "https://github.com/novapizza/nmtr/releases",
+        label: "Download for Mac",
+        href: null,
+        platform: "mac",
+      },
+      {
+        label: "Download for Windows",
+        href: null,
         platform: "windows",
       },
     ],
