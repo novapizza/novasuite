@@ -190,7 +190,7 @@ export const products: Product[] = [
         mac: "latest-mac.yml",
       },
     },
-    downloads: [{ label: "Download for Mac", href: null, platform: "mac" }],
+    downloads: [{ label: "Download for Mac (Apple Silicon)", href: null, platform: "mac", arch: "arm64" }],
     features: [
       {
         icon: Search,
