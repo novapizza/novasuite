@@ -64,6 +64,7 @@ export type Product = {
       mac?: string;
       windows?: string;
     };
+    format?: "yaml" | "appcast";
   };
   features: { icon: LucideIcon; title: string; body: string }[];
   stack: { label: string; value: string }[];
@@ -279,11 +280,19 @@ export const products: Product[] = [
     icon: Clipboard,
     accent: "#34d399",
     platforms: ["mac"],
+    release: {
+      baseUrl: "https://pub-4ab8b2cc0203430fbd129ff8f2b54b00.r2.dev",
+      manifests: {
+        mac: "appcast.xml",
+      },
+      format: "appcast",
+    },
     downloads: [
       {
-        label: "Get it on GitHub",
-        href: "https://github.com/novapizza/NovaClipboard",
+        label: "Download for Mac (Apple Silicon)",
+        href: null,
         platform: "mac",
+        arch: "arm64",
       },
     ],
     features: [
@@ -442,6 +451,16 @@ export async function fetchLatestReleaseManifest(
   }
 
   const content = await response.text();
+
+  if (release.format === "appcast") {
+    const { version, url } = parseAppcast(content);
+    if (!url) {
+      return { version, href: null };
+    }
+    const href = url.startsWith("http") ? url : joinUrl(release.baseUrl, url);
+    return { version, href };
+  }
+
   const version = parseVersionFromYaml(content);
   const assetPath = parsePathFromYaml(content);
   if (!assetPath) {
@@ -453,6 +472,15 @@ export async function fetchLatestReleaseManifest(
     ? patchedPath
     : joinUrl(release.baseUrl, patchedPath);
   return { version, href };
+}
+
+function parseAppcast(content: string): { version: string | null; url: string | null } {
+  const versionMatch = content.match(/<sparkle:shortVersionString>([^<]+)<\/sparkle:shortVersionString>/i);
+  const enclosureMatch = content.match(/<enclosure[^>]*\burl\s*=\s*["']([^"']+)["'][^>]*\/?>/i);
+  return {
+    version: versionMatch ? versionMatch[1].trim() : null,
+    url: enclosureMatch ? enclosureMatch[1].trim() : null,
+  };
 }
 
 function parseVersionFromYaml(content: string): string | null {
