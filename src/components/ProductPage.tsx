@@ -1,6 +1,6 @@
 import { Apple, AppWindow, Download, Globe, Terminal } from "lucide-react";
 import type { ComponentProps } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ProductMockup } from "@/components/ProductMockup";
 import type { Platform, Product } from "@/lib/products";
 import { fetchLatestReleaseManifest } from "@/lib/products";
@@ -29,21 +29,36 @@ type DownloadButtonProps = {
 
 type ReleaseData = Record<string, { version?: string; href?: string }>;
 
+type ClientEnv = { platform: "mac" | "windows" | null; arch: "x64" | "arm64" };
+
 function downloadKey(platform: Platform, arch?: "x64" | "arm64") {
   return arch ? `${platform}:${arch}` : platform;
 }
 
-async function detectClientArch(): Promise<"x64" | "arm64"> {
+function detectClientPlatform(): "mac" | "windows" | null {
+  if (typeof navigator === "undefined") return null;
+  const ua = navigator.userAgent;
+  // iOS declares "like Mac OS X" but can't install desktop builds.
+  if (/iphone|ipad|ipod/i.test(ua)) return null;
+  if (/macintosh|mac os x/i.test(ua)) return "mac";
+  if (/windows/i.test(ua)) return "windows";
+  return null;
+}
+
+async function detectClientArch(platform: "mac" | "windows" | null): Promise<"x64" | "arm64"> {
   if (typeof navigator === "undefined") return "x64";
   if ("userAgentData" in navigator) {
     try {
       const data = await (navigator as { userAgentData: { getHighEntropyValues: (h: string[]) => Promise<{ architecture?: string }> } }).userAgentData.getHighEntropyValues(["architecture"]);
       if (data.architecture === "arm") return "arm64";
+      if (data.architecture === "x86") return "x64";
     } catch {
       // fall through to UA string
     }
   }
-  return /arm64|aarch64/i.test(navigator.userAgent) ? "arm64" : "x64";
+  if (/arm64|aarch64/i.test(navigator.userAgent)) return "arm64";
+  // Safari/Firefox on Apple Silicon still report an Intel UA — default new-Mac hardware.
+  return platform === "mac" ? "arm64" : "x64";
 }
 
 function DownloadButton({ download, variant, showDownloadIcon, className }: DownloadButtonProps) {
@@ -90,16 +105,60 @@ function DownloadButton({ download, variant, showDownloadIcon, className }: Down
   );
 }
 
+function AlternateDownloads({
+  downloads,
+  className,
+}: {
+  downloads: Product["downloads"];
+  className?: string;
+}) {
+  if (downloads.length === 0) return null;
+  return (
+    <div
+      className={cn(
+        "flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground",
+        className,
+      )}
+    >
+      <span>Also available:</span>
+      {downloads.map((d, i) => {
+        const label = d.label.replace(/^Download for /, "");
+        const isExternal = d.href !== null && /^https?:/i.test(d.href);
+        return (
+          <span key={d.label} className="inline-flex items-center gap-2">
+            {i > 0 && <span aria-hidden>·</span>}
+            {d.href !== null ? (
+              <a
+                href={d.href}
+                className="underline underline-offset-2 transition-colors hover:text-foreground"
+                {...(isExternal ? { target: "_blank", rel: "noreferrer" } : {})}
+              >
+                {label}
+              </a>
+            ) : (
+              <span title="Coming soon" className="cursor-not-allowed opacity-60">
+                {label}
+              </span>
+            )}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 export function ProductPage({ product }: { product: Product }) {
   const Icon = product.icon;
-  const primary = product.downloads[0];
   const [releaseData, setReleaseData] = useState<ReleaseData>({});
+  const [client, setClient] = useState<ClientEnv | null>(null);
 
   useEffect(() => {
     let active = true;
     async function loadReleaseData() {
       try {
-        const clientArch = await detectClientArch();
+        const clientPlatform = detectClientPlatform();
+        const clientArch = await detectClientArch(clientPlatform);
+        if (active) setClient({ platform: clientPlatform, arch: clientArch });
         const updated: ReleaseData = {};
 
         await Promise.all(
@@ -130,19 +189,28 @@ export function ProductPage({ product }: { product: Product }) {
     };
   }, [product]);
 
-  const version = useMemo(() => {
-    const primaryVersion = releaseData[downloadKey(primary.platform, primary.arch)]?.version;
-    if (primaryVersion) return primaryVersion;
-    const fallback = Object.values(releaseData).find((item) => item?.version)?.version;
-    return fallback;
-  }, [primary.platform, primary.arch, releaseData]);
-
   const downloads = product.downloads.map((download) => ({
     ...download,
     href: download.href ?? releaseData[downloadKey(download.platform, download.arch)]?.href ?? null,
   }));
 
-  const [computedPrimary, ...computedRest] = downloads;
+  // Show the visitor's OS as full buttons (matching arch first); collapse the
+  // other platform's builds into a compact "Also available" line.
+  const detectedPlatform = client?.platform ?? null;
+  const matching = detectedPlatform
+    ? downloads.filter((d) => d.platform === detectedPlatform)
+    : [];
+  const split = matching.length > 0 && matching.length < downloads.length;
+  const archAffinity = (d: (typeof downloads)[number]) =>
+    !client || !d.arch || d.arch === client.arch ? 0 : 1;
+  const buttons = split ? [...matching].sort((a, b) => archAffinity(a) - archAffinity(b)) : downloads;
+  const alternates = split ? downloads.filter((d) => d.platform !== detectedPlatform) : [];
+
+  const [computedPrimary, ...computedRest] = buttons;
+
+  const version =
+    releaseData[downloadKey(computedPrimary.platform, computedPrimary.arch)]?.version ??
+    Object.values(releaseData).find((item) => item?.version)?.version;
 
   return (
     <div className="mx-auto w-full max-w-[1200px] px-4 pb-10 pt-4 sm:px-5 md:px-7">
@@ -199,6 +267,8 @@ export function ProductPage({ product }: { product: Product }) {
               <DownloadButton key={d.label} download={d} variant="secondary" />
             ))}
           </div>
+
+          <AlternateDownloads downloads={alternates} className="mt-3" />
 
           <div className="mt-3 flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
@@ -297,6 +367,8 @@ export function ProductPage({ product }: { product: Product }) {
                 <DownloadButton key={d.label} download={d} variant="secondary" />
               ))}
             </div>
+
+            <AlternateDownloads downloads={alternates} className="mt-3 justify-center" />
           </div>
         </div>
       </section>

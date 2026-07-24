@@ -146,7 +146,9 @@ export const products: Product[] = [
       },
     },
     downloads: [
-      { label: "Download for Mac", href: null, platform: "mac" },
+      { label: "Download for Mac (Apple Silicon)", href: null, platform: "mac", arch: "arm64" },
+      { label: "Download for Mac (Intel)", href: null, platform: "mac", arch: "x64" },
+      // Windows ships a single multi-arch installer (see latest.yml `path:`).
       { label: "Download for Windows", href: null, platform: "windows" },
     ],
     features: [
@@ -483,6 +485,24 @@ export function getProduct(slug: string): Product | undefined {
   return products.find((p) => p.slug === slug);
 }
 
+// Manifests are shared across arch-specific download buttons — fetch each URL once.
+const manifestTextCache = new Map<string, Promise<string | null>>();
+
+function fetchManifestText(url: string): Promise<string | null> {
+  let cached = manifestTextCache.get(url);
+  if (!cached) {
+    cached = fetch(url)
+      .then((response) => (response.ok ? response.text() : null))
+      .catch(() => null)
+      .then((text) => {
+        if (text === null) manifestTextCache.delete(url);
+        return text;
+      });
+    manifestTextCache.set(url, cached);
+  }
+  return cached;
+}
+
 export async function fetchLatestReleaseManifest(
   product: Product,
   platform: "mac" | "windows",
@@ -498,13 +518,10 @@ export async function fetchLatestReleaseManifest(
     return { version: null, href: null };
   }
 
-  const manifestUrl = joinUrl(release.baseUrl, manifestName);
-  const response = await fetch(manifestUrl);
-  if (!response.ok) {
+  const content = await fetchManifestText(joinUrl(release.baseUrl, manifestName));
+  if (content === null) {
     return { version: null, href: null };
   }
-
-  const content = await response.text();
 
   if (release.format === "appcast") {
     const { version, url } = parseAppcast(content);
@@ -516,16 +533,62 @@ export async function fetchLatestReleaseManifest(
   }
 
   const version = parseVersionFromYaml(content);
-  const assetPath = parsePathFromYaml(content);
+  const assetPath =
+    pickAssetFromFiles(parseFilesFromYaml(content), platform, arch) ??
+    legacyPathAsset(content, arch);
   if (!assetPath) {
     return { version, href: null };
   }
 
-  const patchedPath = patchPathForArch(assetPath, arch);
-  const href = assetPath.startsWith("http")
-    ? patchedPath
-    : joinUrl(release.baseUrl, patchedPath);
+  const href = assetPath.startsWith("http") ? assetPath : joinUrl(release.baseUrl, assetPath);
   return { version, href };
+}
+
+function parseFilesFromYaml(content: string): string[] {
+  const urls: string[] = [];
+  const fileUrlPattern = /^\s*-\s*url\s*:\s*['"]?([^'"\r\n]+?)['"]?\s*$/gim;
+  let match;
+  while ((match = fileUrlPattern.exec(content))) {
+    const url = match[1].trim();
+    if (!urls.includes(url)) urls.push(url);
+  }
+  return urls;
+}
+
+function archOfAsset(url: string): "arm64" | "x64" | null {
+  if (/arm64|aarch64/i.test(url)) return "arm64";
+  if (/x64|x86_64|amd64|intel/i.test(url)) return "x64";
+  return null;
+}
+
+// Pick the best asset for a platform/arch: exact arch match first, then unmarked
+// builds (electron-builder omits the arch suffix for x64/universal artifacts),
+// preferring installer formats over update archives.
+function pickAssetFromFiles(
+  urls: string[],
+  platform: "mac" | "windows",
+  arch: "x64" | "arm64",
+): string | null {
+  if (urls.length === 0) return null;
+
+  const extensions = platform === "mac" ? [".dmg", ".pkg", ".zip"] : [".exe", ".msi", ".zip"];
+  const extensionRank = (url: string) => {
+    const index = extensions.findIndex((ext) => url.toLowerCase().endsWith(ext));
+    return index === -1 ? extensions.length : index;
+  };
+  const archRank = (url: string) => {
+    const assetArch = archOfAsset(url);
+    if (assetArch === arch) return 0;
+    if (assetArch === null) return 1;
+    return 2;
+  };
+
+  return [...urls].sort((a, b) => archRank(a) - archRank(b) || extensionRank(a) - extensionRank(b))[0];
+}
+
+function legacyPathAsset(content: string, arch: "x64" | "arm64"): string | null {
+  const assetPath = parsePathFromYaml(content);
+  return assetPath ? patchPathForArch(assetPath, arch) : null;
 }
 
 function parseAppcast(content: string): { version: string | null; url: string | null } {
