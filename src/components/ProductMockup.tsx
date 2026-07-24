@@ -33,6 +33,7 @@ export function ProductMockup({ product }: { product: Product }) {
           {product.slug === "novafinder" && <NovaFinderSurface accent={product.accent} />}
           {product.slug === "novagitx" && <NovaGitXSurface accent={product.accent} />}
           {product.slug === "novaclipboard" && <NovaClipboardSurface accent={product.accent} />}
+          {product.slug === "novakey" && <NovaKeySurface accent={product.accent} />}
           {product.slug === "nmtr" && <NmtrSurface accent={product.accent} />}
           {product.slug === "cirrus" && <CirrusSurface accent={product.accent} />}
         </div>
@@ -489,6 +490,75 @@ function NovaClipboardSurface({ accent }: { accent: string }) {
               )}
             </div>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* --- NovaKey: Telex input demo --- */
+function NovaKeySurface({ accent }: { accent: string }) {
+  const rules: { keys: string; out: string }[] = [
+    { keys: "aa", out: "â" },
+    { keys: "ow", out: "ơ" },
+    { keys: "aw", out: "ă" },
+    { keys: "dd", out: "đ" },
+    { keys: "as", out: "á" },
+    { keys: "af", out: "à" },
+  ];
+  return (
+    <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#fff1f2] to-[#fff7ed] p-3 dark:from-[oklch(0.2_0.07_15)] dark:to-[oklch(0.2_0.06_40)] sm:p-6">
+      <div className="w-full max-w-md overflow-hidden rounded-2xl border border-border/60 bg-card shadow-2xl">
+        {/* Mode bar */}
+        <div className="flex items-center gap-2 border-b border-border/50 px-3 py-2.5 sm:px-4">
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm"
+            style={{ background: `linear-gradient(135deg, ${accent}, #fbbf24)` }}
+          >
+            V Tiếng Việt
+          </span>
+          <span className="rounded-md border border-border/60 bg-background px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+            Telex
+          </span>
+          <span className="ml-auto rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+            ⌥Z
+          </span>
+        </div>
+
+        {/* Text field: result with caret */}
+        <div className="px-3 py-4 sm:px-4">
+          <div className="rounded-xl border border-border/60 bg-background px-3 py-2.5">
+            <span className="font-display text-lg tracking-tight sm:text-xl">Tiếng Việt</span>
+            <span
+              className="ml-0.5 inline-block h-4 w-px align-middle sm:h-5"
+              style={{ background: accent }}
+            />
+          </div>
+          {/* Transform line: telex keystrokes -> vietnamese */}
+          <div className="mt-2.5 flex items-center gap-2 font-mono text-[11px] sm:text-[12px]">
+            <span className="text-muted-foreground line-through decoration-border">Tieesng Vieejt</span>
+            <span style={{ color: accent }}>→</span>
+            <span className="font-medium">Tiếng Việt</span>
+          </div>
+        </div>
+
+        {/* Rule keycaps */}
+        <div className="border-t border-border/50 px-3 py-3 sm:px-4">
+          <div className="mb-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+            Telex keys
+          </div>
+          <div className="grid grid-cols-3 gap-1.5">
+            {rules.map((r) => (
+              <div
+                key={r.keys}
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-border/60 bg-background px-2 py-1.5 font-mono text-[11px]"
+              >
+                <span className="text-muted-foreground">{r.keys}</span>
+                <span style={{ color: accent }}>→</span>
+                <span className="font-semibold">{r.out}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

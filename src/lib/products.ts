@@ -15,6 +15,8 @@ import {
   GitPullRequest,
   Globe,
   Hash,
+  Keyboard,
+  Languages,
   LayoutDashboard,
   Layers,
   Lock,
@@ -41,6 +43,7 @@ export const productSlugs = [
   "novafinder",
   "novagitx",
   "novaclipboard",
+  "novakey",
   "nmtr",
   "cirrus",
 ] as const;
@@ -322,6 +325,57 @@ export const products: Product[] = [
       { label: "UI framework", value: "SwiftUI" },
       { label: "Storage", value: "SwiftData" },
       { label: "Build", value: "XcodeGen" },
+    ],
+  },
+  {
+    slug: "novakey",
+    name: "NovaKey",
+    tagline: { lead: "Vietnamese input,", accent: "everywhere you type." },
+    description:
+      "A Vietnamese input method that uses the backspace technique instead of a composition window — so Telex works in browser URL bars, terminals, editors, and every other app. Fast, lightweight, and private.",
+    blurb: "Type Vietnamese.",
+    icon: Keyboard,
+    accent: "#fb7185",
+    platforms: ["mac", "windows"],
+    downloads: [
+      {
+        label: "Download for Mac",
+        href: "https://pub-7caaa511a0944e589f8c9a3382975fbd.r2.dev/latest/NovaKey-macos.zip",
+        platform: "mac",
+      },
+      {
+        label: "Download for Windows",
+        href: "https://pub-7caaa511a0944e589f8c9a3382975fbd.r2.dev/latest/NovaKey-windows.zip",
+        platform: "windows",
+      },
+    ],
+    features: [
+      {
+        icon: Globe,
+        title: "Works everywhere",
+        body: "A global CGEvent tap sends backspaces and Unicode instead of using IMKit's marked text, so it just works in Chrome URL bars, Terminal, VS Code, and Spotlight.",
+      },
+      {
+        icon: Languages,
+        title: "Smart tone placement",
+        body: "Modern Vietnamese orthographic rules place tones correctly — hoang + f lands the huyền on the a, not the o.",
+      },
+      {
+        icon: Shield,
+        title: "English-word protection",
+        body: "Telex transforms are gated on syllable validity, so class, know, and add stay literal instead of turning into Vietnamese.",
+      },
+      {
+        icon: RotateCcw,
+        title: "Double-press escape",
+        body: "Typing a Telex key twice trusts the second press unconditionally — disst becomes dist, noww becomes now, corrrection becomes correction.",
+      },
+    ],
+    stack: [
+      { label: "Engine", value: "Swift" },
+      { label: "Windows port", value: "Rust" },
+      { label: "Interception", value: "CGEventTap" },
+      { label: "UI", value: "SwiftUI" },
     ],
   },
   {
