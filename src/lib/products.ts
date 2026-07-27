@@ -51,6 +51,8 @@ export type ProductSlug = (typeof productSlugs)[number];
 
 export type Platform = "mac" | "windows" | "linux" | "web";
 
+export type ManifestFormat = "yaml" | "appcast" | "json";
+
 export type Product = {
   slug: ProductSlug;
   name: string;
@@ -67,7 +69,9 @@ export type Product = {
       mac?: string;
       windows?: string;
     };
-    format?: "yaml" | "appcast";
+    // Omit to infer from the manifest extension (.xml → appcast, .json → json,
+    // anything else → yaml). Only set it when the extension lies.
+    format?: ManifestFormat;
   };
   features: { icon: LucideIcon; title: string; body: string }[];
   stack: { label: string; value: string }[];
@@ -339,15 +343,22 @@ export const products: Product[] = [
     icon: Keyboard,
     accent: "#fb7185",
     platforms: ["mac", "windows"],
+    release: {
+      baseUrl: "https://pub-7caaa511a0944e589f8c9a3382975fbd.r2.dev",
+      manifests: {
+        mac: "latest/appcast.xml",
+        windows: "latest/latest.json",
+      },
+    },
     downloads: [
       {
         label: "Download for Mac",
-        href: "https://pub-7caaa511a0944e589f8c9a3382975fbd.r2.dev/latest/NovaKey-macos.zip",
+        href: null,
         platform: "mac",
       },
       {
         label: "Download for Windows",
-        href: "https://pub-7caaa511a0944e589f8c9a3382975fbd.r2.dev/latest/NovaKey-windows.zip",
+        href: null,
         platform: "windows",
       },
     ],
@@ -518,17 +529,22 @@ export async function fetchLatestReleaseManifest(
     return { version: null, href: null };
   }
 
-  const content = await fetchManifestText(joinUrl(release.baseUrl, manifestName));
+  const manifestUrl = joinUrl(release.baseUrl, manifestName);
+  const content = await fetchManifestText(manifestUrl);
   if (content === null) {
     return { version: null, href: null };
   }
 
-  if (release.format === "appcast") {
-    const { version, url } = parseAppcast(content);
+  const format = release.format ?? inferManifestFormat(manifestName);
+
+  if (format === "appcast" || format === "json") {
+    const { version, url } =
+      format === "appcast" ? parseAppcast(content) : parseJsonManifest(content, platform, arch);
     if (!url) {
       return { version, href: null };
     }
-    const href = url.startsWith("http") ? url : joinUrl(release.baseUrl, url);
+    // Manifest-relative paths resolve against the manifest, not the release root.
+    const href = url.startsWith("http") ? url : joinUrl(manifestUrl.replace(/\/[^/]*$/u, ""), url);
     return { version, href };
   }
 
@@ -589,6 +605,78 @@ function pickAssetFromFiles(
 function legacyPathAsset(content: string, arch: "x64" | "arm64"): string | null {
   const assetPath = parsePathFromYaml(content);
   return assetPath ? patchPathForArch(assetPath, arch) : null;
+}
+
+function inferManifestFormat(manifestName: string): ManifestFormat {
+  if (/\.xml$/i.test(manifestName)) return "appcast";
+  if (/\.json$/i.test(manifestName)) return "json";
+  return "yaml";
+}
+
+const platformAliases: Record<"mac" | "windows", string[]> = {
+  mac: ["mac", "macos", "darwin", "osx"],
+  windows: ["windows", "win", "win32", "win64"],
+};
+
+// Matches "windows", "windows-x86_64", "darwin_aarch64" — the flat-key and
+// Tauri-style `platforms` shapes both use the same convention.
+function keyMatchesPlatform(key: string, platform: "mac" | "windows") {
+  const normalized = key.toLowerCase();
+  return platformAliases[platform].some(
+    (alias) =>
+      normalized === alias ||
+      normalized.startsWith(`${alias}-`) ||
+      normalized.startsWith(`${alias}_`),
+  );
+}
+
+function collectUrls(value: unknown, out: string[]) {
+  if (typeof value === "string") {
+    if (value.trim()) out.push(value.trim());
+    return;
+  }
+  if (Array.isArray(value)) {
+    for (const entry of value) collectUrls(entry, out);
+    return;
+  }
+  if (value && typeof value === "object") {
+    const url = (value as Record<string, unknown>).url;
+    if (typeof url === "string" && url.trim()) out.push(url.trim());
+  }
+}
+
+function parseJsonManifest(
+  content: string,
+  platform: "mac" | "windows",
+  arch: "x64" | "arm64",
+): { version: string | null; url: string | null } {
+  let data: unknown;
+  try {
+    data = JSON.parse(content);
+  } catch {
+    return { version: null, url: null };
+  }
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    return { version: null, url: null };
+  }
+
+  const root = data as Record<string, unknown>;
+  const rawVersion = typeof root.version === "string" ? root.version.trim() : "";
+  const version = rawVersion ? rawVersion.replace(/^v/i, "") : null;
+
+  const candidates: string[] = [];
+  for (const [key, value] of Object.entries(root)) {
+    if (keyMatchesPlatform(key, platform)) collectUrls(value, candidates);
+  }
+  const nested = root.platforms;
+  if (nested && typeof nested === "object" && !Array.isArray(nested)) {
+    for (const [key, value] of Object.entries(nested as Record<string, unknown>)) {
+      if (keyMatchesPlatform(key, platform)) collectUrls(value, candidates);
+    }
+  }
+  if (candidates.length === 0) collectUrls(root.url, candidates);
+
+  return { version, url: pickAssetFromFiles(candidates, platform, arch) };
 }
 
 function parseAppcast(content: string): { version: string | null; url: string | null } {
