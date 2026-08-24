@@ -1,16 +1,21 @@
 import {
+  ArrowRightLeft,
   ArrowUpRight,
+  Braces,
   Circle as CircleIcon,
   Clipboard,
   Droplet,
   FileText,
   Image as ImageIcon,
   Link2,
+  Lock,
   Palette,
+  Pause,
   Pen,
   Search,
   Square,
   Type,
+  Waves,
   Zap,
   type LucideIcon,
 } from "lucide-react";
@@ -35,6 +40,7 @@ export function ProductMockup({ product }: { product: Product }) {
           {product.slug === "novaclipboard" && <NovaClipboardSurface accent={product.accent} />}
           {product.slug === "novakey" && <NovaKeySurface accent={product.accent} />}
           {product.slug === "nmtr" && <NmtrSurface accent={product.accent} />}
+          {product.slug === "novaproxy" && <NovaProxySurface accent={product.accent} />}
           {product.slug === "cirrus" && <CirrusSurface accent={product.accent} />}
         </div>
       </div>
@@ -683,6 +689,170 @@ function NmtrSurface({ accent }: { accent: string }) {
               </svg>
             </div>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* --- NovaProxy: traffic inspector --- */
+function NovaProxySurface({ accent }: { accent: string }) {
+  const rail: { icon: LucideIcon; label: string }[] = [
+    { icon: Waves, label: "Flows" },
+    { icon: ArrowRightLeft, label: "Rules" },
+    { icon: Pause, label: "Break" },
+    { icon: Braces, label: "Scripts" },
+    { icon: Lock, label: "Certs" },
+  ];
+
+  const flows = [
+    {
+      method: "POST",
+      status: 200,
+      host: "api.anthropic.com",
+      path: "/v1/messages",
+      ms: 812,
+      mcp: false,
+    },
+    {
+      method: "POST",
+      status: 200,
+      host: "localhost:7331",
+      path: "tools/call · search_docs",
+      ms: 44,
+      mcp: true,
+    },
+    {
+      method: "GET",
+      status: 304,
+      host: "cdn.novasuite.dev",
+      path: "/assets/app.css",
+      ms: 12,
+      mcp: false,
+    },
+    {
+      method: "POST",
+      status: 401,
+      host: "api.stripe.com",
+      path: "/v1/charges",
+      ms: 210,
+      mcp: false,
+    },
+    { method: "POST", status: 200, host: "localhost:7331", path: "tools/list", ms: 8, mcp: true },
+  ];
+
+  const statusColor = (status: number) =>
+    status >= 400 ? "#f87171" : status >= 300 ? "#fbbf24" : accent;
+
+  return (
+    <div className="flex h-full">
+      {/* Left rail */}
+      <div className="hidden w-12 shrink-0 flex-col items-center gap-1 border-r border-border/50 bg-muted/40 py-2 sm:flex">
+        {rail.map((r, i) => {
+          const Icon = r.icon;
+          return (
+            <div
+              key={r.label}
+              className={`flex w-10 flex-col items-center gap-0.5 rounded-md py-1.5 ${i === 0 ? "bg-card shadow-sm" : "text-muted-foreground"}`}
+              style={i === 0 ? { color: accent } : undefined}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              <span className="text-[8px] leading-none">{r.label}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Toolbar */}
+        <div className="flex items-center gap-2 border-b border-border/50 bg-muted/30 px-2 py-1.5 text-[10px] sm:px-3 sm:py-2">
+          <span className="inline-flex items-center gap-1 rounded-md border border-[#f87171]/40 px-1.5 py-0.5 font-medium text-[#f87171]">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#f87171]" />
+            Recording
+          </span>
+          <span className="hidden min-w-0 flex-1 truncate rounded-md border border-border/60 bg-card px-2 py-0.5 font-mono text-muted-foreground sm:block">
+            host:api · status:4xx
+          </span>
+          <span
+            className="ml-auto shrink-0 rounded-md px-1.5 py-0.5 font-mono text-[9px] font-medium text-white sm:ml-0"
+            style={{ background: accent }}
+          >
+            MCP only
+          </span>
+          <span className="hidden items-center gap-1 text-muted-foreground md:flex">
+            <span className="h-2 w-4 rounded-full bg-muted-foreground/30" />
+            System Proxy
+          </span>
+        </div>
+
+        <div className="flex min-h-0 flex-1">
+          {/* Flow list */}
+          <div className="min-w-0 flex-1 border-r border-border/50 p-1.5 sm:p-2">
+            <div className="mb-1 flex items-center justify-between px-1.5 font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
+              <span>{flows.length} flows</span>
+              <span className="hidden sm:inline">grouped</span>
+            </div>
+            {flows.map((f, i) => (
+              <div
+                key={`${f.host}${f.path}`}
+                className={`mb-0.5 flex items-center gap-1.5 rounded-md px-1.5 py-1 font-mono text-[10px] ${i === 1 ? "bg-card shadow-sm" : ""}`}
+              >
+                <span className="w-7 shrink-0 text-[9px] text-muted-foreground">{f.method}</span>
+                <span className="w-6 shrink-0 text-[9px]" style={{ color: statusColor(f.status) }}>
+                  {f.status}
+                </span>
+                <div className="flex min-w-0 flex-col leading-tight">
+                  <span className="truncate">{f.path}</span>
+                  <span className="truncate text-[9px] text-muted-foreground">{f.host}</span>
+                </div>
+                {f.mcp && (
+                  <span
+                    className="ml-auto shrink-0 rounded px-1 text-[8px] font-medium"
+                    style={{
+                      background: `color-mix(in oklab, ${accent} 20%, transparent)`,
+                      color: accent,
+                    }}
+                  >
+                    MCP
+                  </span>
+                )}
+                <span
+                  className={`shrink-0 text-[9px] text-muted-foreground ${f.mcp ? "" : "ml-auto"}`}
+                >
+                  {f.ms}ms
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Inspector */}
+          <div className="hidden w-40 shrink-0 flex-col p-2 md:flex lg:w-52">
+            <div className="mb-1.5 flex gap-1 font-mono text-[9px]">
+              {["Request", "Response"].map((t, i) => (
+                <span
+                  key={t}
+                  className={`rounded px-1.5 py-0.5 ${i === 0 ? "text-white" : "text-muted-foreground"}`}
+                  style={i === 0 ? { background: accent } : undefined}
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+            <div className="rounded-lg border border-border/50 bg-card p-2 font-mono text-[9px] leading-relaxed">
+              <div className="text-muted-foreground">jsonrpc</div>
+              <div>&quot;2.0&quot;</div>
+              <div className="mt-1 text-muted-foreground">method</div>
+              <div>&quot;tools/call&quot;</div>
+              <div className="mt-1 text-muted-foreground">params.name</div>
+              <div style={{ color: accent }}>&quot;search_docs&quot;</div>
+              <div className="mt-1 text-muted-foreground">params.arguments</div>
+              <div>{'{ query: "tls" }'}</div>
+            </div>
+            <div className="mt-auto flex items-center gap-1 pt-2 font-mono text-[9px] text-muted-foreground">
+              <Lock className="h-2.5 w-2.5" />
+              CA installed · 127.0.0.1:9090
+            </div>
+          </div>
         </div>
       </div>
     </div>

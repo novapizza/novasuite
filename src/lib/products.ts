@@ -1,5 +1,6 @@
 import {
   Activity,
+  ArrowRightLeft,
   BarChart3,
   Camera,
   Clipboard,
@@ -25,6 +26,7 @@ import {
   PackageMinus,
   PenTool,
   Plug,
+  Radio,
   RotateCcw,
   Route,
   ScanSearch,
@@ -33,6 +35,7 @@ import {
   Terminal,
   Upload,
   Video,
+  Waves,
   Zap,
   type LucideIcon,
 } from "lucide-react";
@@ -45,6 +48,7 @@ export const productSlugs = [
   "novaclipboard",
   "novakey",
   "nmtr",
+  "novaproxy",
   "cirrus",
 ] as const;
 export type ProductSlug = (typeof productSlugs)[number];
@@ -444,6 +448,57 @@ export const products: Product[] = [
     ],
   },
   {
+    slug: "novaproxy",
+    name: "NovaProxy",
+    tagline: { lead: "Every request,", accent: "in the open." },
+    description:
+      "An HTTPS debugging proxy that decodes what your apps and AI agents are really sending — live flows, MCP-aware inspection, rewrite rules, breakpoints, and scriptable interception.",
+    blurb: "See the wire.",
+    icon: Waves,
+    accent: "#2dd4bf",
+    platforms: ["mac", "windows"],
+    release: {
+      baseUrl: "https://pub-4aa88a825303408b9dd0b955b27b5fc1.r2.dev",
+      // One manifest covers both platforms — assets live under `platforms:` keys.
+      manifests: {
+        mac: "latest.yml",
+        windows: "latest.yml",
+      },
+    },
+    downloads: [
+      { label: "Download for Mac (Apple Silicon)", href: null, platform: "mac", arch: "arm64" },
+      { label: "Download for Windows", href: null, platform: "windows", arch: "x64" },
+    ],
+    features: [
+      {
+        icon: Radio,
+        title: "Live flow capture",
+        body: "Flip the system proxy on and every request streams in — grouped by host, filterable by path, method or status, with full request and response bodies decoded.",
+      },
+      {
+        icon: Network,
+        title: "MCP aware",
+        body: "One toggle isolates Model Context Protocol traffic and renders the JSON-RPC as tool calls, arguments and results instead of a wall of framed text.",
+      },
+      {
+        icon: ArrowRightLeft,
+        title: "Rules & breakpoints",
+        body: "Rewrite headers, map a host to localhost, inject latency or failures — or pause a flow mid-flight and edit the request before it leaves.",
+      },
+      {
+        icon: Terminal,
+        title: "Scriptable hooks",
+        body: "Attach JavaScript to request and response events for signing, redaction or assertions. No proxy restart, no rebuild.",
+      },
+    ],
+    stack: [
+      { label: "Proxy core", value: "Rust" },
+      { label: "Shell", value: "Tauri 2" },
+      { label: "UI framework", value: "React 19" },
+      { label: "TLS", value: "rustls MITM" },
+    ],
+  },
+  {
     slug: "cirrus",
     name: "Nova Cirrus",
     tagline: { lead: "Your files, in the", accent: "open sky." },
@@ -551,6 +606,7 @@ export async function fetchLatestReleaseManifest(
   const version = parseVersionFromYaml(content);
   const assetPath =
     pickAssetFromFiles(parseFilesFromYaml(content), platform, arch) ??
+    pickAssetFromFiles(parsePlatformBlocksFromYaml(content, platform), platform, arch) ??
     legacyPathAsset(content, arch);
   if (!assetPath) {
     return { version, href: null };
@@ -600,6 +656,30 @@ function pickAssetFromFiles(
   };
 
   return [...urls].sort((a, b) => archRank(a) - archRank(b) || extensionRank(a) - extensionRank(b))[0];
+}
+
+// Manifests that group assets under platform keys (`darwin-aarch64:`, `windows-x86_64:`)
+// instead of a flat `files:` list — collect every `url:` inside a matching block.
+function parsePlatformBlocksFromYaml(content: string, platform: "mac" | "windows"): string[] {
+  const urls: string[] = [];
+  let blockIndent = -1;
+  for (const line of content.split(/\r?\n/)) {
+    const keyMatch = line.match(/^(\s*)([A-Za-z0-9._-]+)\s*:\s*(.*?)\s*$/);
+    if (!keyMatch) continue;
+    const indent = keyMatch[1].length;
+    const key = keyMatch[2];
+    const value = keyMatch[3].replace(/\s+#.*$/u, "").trim();
+
+    if (blockIndent !== -1 && indent <= blockIndent) blockIndent = -1;
+    if (blockIndent === -1) {
+      if (!value && keyMatchesPlatform(key, platform)) blockIndent = indent;
+      continue;
+    }
+    if (key !== "url" || !value) continue;
+    const url = value.replace(/^['"]|['"]$/gu, "").trim();
+    if (url && !urls.includes(url)) urls.push(url);
+  }
+  return urls;
 }
 
 function legacyPathAsset(content: string, arch: "x64" | "arm64"): string | null {

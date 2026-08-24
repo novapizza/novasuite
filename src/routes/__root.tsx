@@ -83,7 +83,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Nova Suite is a family of open-source tools — NovaPad, Lumia, NovaFinder, NovaGitX, NovaClipboard, nmtr and Cirrus — built for people who care about the details.",
+          "Nova Suite is a family of open-source tools — NovaPad, Lumia, NovaFinder, NovaGitX, NovaClipboard, nmtr, NovaProxy and Cirrus — built for people who care about the details.",
       },
       { name: "author", content: "Nova Suite" },
       { property: "og:title", content: "Nova Suite — Tools that ship" },
