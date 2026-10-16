@@ -1,11 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ProductPage } from "@/components/ProductPage";
-import { getProduct } from "@/lib/products";
-import { productHead } from "@/lib/product-head";
-
-const product = getProduct("novapad")!;
+import { AppGrid } from "@/components/home/AppGrid";
+import { Hero } from "@/components/home/Hero";
 
 export const Route = createFileRoute("/")({
-  head: () => productHead(product),
-  component: () => <ProductPage product={product} />,
+  component: HomePage,
 });
+
+function HomePage() {
+  return (
+    <>
+      <Hero />
+      <AppGrid />
+    </>
+  );
+}

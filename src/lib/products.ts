@@ -1,45 +1,3 @@
-import {
-  Activity,
-  ArrowRightLeft,
-  BarChart3,
-  Camera,
-  Clipboard,
-  Cloud,
-  Command,
-  Cpu,
-  Database,
-  FileText,
-  Files,
-  FolderSearch,
-  GitBranch,
-  GitMerge,
-  GitPullRequest,
-  Globe,
-  Hash,
-  Keyboard,
-  Languages,
-  LayoutDashboard,
-  Layers,
-  Lock,
-  Network,
-  Package,
-  PackageMinus,
-  PenTool,
-  Plug,
-  Radio,
-  RotateCcw,
-  Route,
-  ScanSearch,
-  Search,
-  Shield,
-  Terminal,
-  Upload,
-  Video,
-  Waves,
-  Zap,
-  type LucideIcon,
-} from "lucide-react";
-
 export const productSlugs = [
   "novapad",
   "lumia",
@@ -57,14 +15,49 @@ export type Platform = "mac" | "windows" | "linux" | "web";
 
 export type ManifestFormat = "yaml" | "appcast" | "json";
 
+export type ProductGroup = "dev" | "everyday";
+
+// Glyph drawn behind the "N" in the app icon (see components/brand/AppIcon).
+export type AppGlyph =
+  | "braces"
+  | "viewfinder"
+  | "magnifier"
+  | "branch"
+  | "clipboard"
+  | "diacritic"
+  | "pulse"
+  | "wire"
+  | "cloud";
+
+// Per-app hue from the Nova palette: icon tile, 300 (dark-theme accent),
+// 700 (light-theme accent) and the three stops of the "N" gradient.
+export type AppHue = {
+  tile: string;
+  c300: string;
+  c700: string;
+  g0: string;
+  g1: string;
+  g2: string;
+};
+
 export type Product = {
   slug: ProductSlug;
+  repo: string;
   name: string;
+  group: ProductGroup;
+  glyph: AppGlyph;
+  hue: AppHue;
+  badge?: string;
+  // Used for <title> and meta tags.
   tagline: { lead: string; accent?: string };
   description: string;
+  // Short line under the app name.
   blurb: string;
-  icon: LucideIcon;
-  accent: string;
+  // One sentence on the app card.
+  short: string;
+  // Paragraph on the detail page.
+  long: string;
+  uses: { title: string; body: string }[];
   platforms: Platform[];
   downloads: { label: string; href: string | null; platform: Platform; arch?: "x64" | "arm64" }[];
   release?: {
@@ -77,20 +70,59 @@ export type Product = {
     // anything else → yaml). Only set it when the extension lies.
     format?: ManifestFormat;
   };
-  features: { icon: LucideIcon; title: string; body: string }[];
-  stack: { label: string; value: string }[];
+};
+
+export const productGroups: { id: ProductGroup; title: string; description: string }[] = [
+  { id: "dev", title: "Developer tools", description: "Edit, version, debug and trace." },
+  { id: "everyday", title: "Everyday utilities", description: "Small helpers for daily work." },
+];
+
+export const platformLabels: Record<Platform, string> = {
+  mac: "Mac",
+  windows: "Windows",
+  linux: "Linux",
+  web: "Web",
 };
 
 export const products: Product[] = [
   {
     slug: "novapad",
+    repo: "novapad",
     name: "NovaPad",
+    group: "dev",
+    glyph: "braces",
+    hue: {
+      tile: "#1E1525",
+      c300: "#F0ABFC",
+      c700: "#A21CAF",
+      g0: "#FAE8FF",
+      g1: "#E879F9",
+      g2: "#C026D3",
+    },
     tagline: { lead: "Words at the", accent: "speed of light." },
     description:
       "Professional text editing for the Mac ecosystem with full Windows compatibility. Fast, extensible, beautifully clear.",
     blurb: "The editor.",
-    icon: FileText,
-    accent: "#818cf8",
+    short: "A fast, modern text and code editor with live previews.",
+    long: "NovaPad is a lightweight, fast and modern text editor for Mac and Windows. It runs on Monaco, the same editor core as VS Code, so you get highlighting for about 70 languages, IntelliSense, bracket colors and folding. It detects the language from the file and its content, and pretty-prints JSON, SQL and XML with one shortcut.",
+    uses: [
+      {
+        title: "Edit with the Monaco engine",
+        body: "The editor core behind VS Code: highlighting for about 70 languages, IntelliSense, bracket colors and folding.",
+      },
+      {
+        title: "Let it detect the language",
+        body: "It picks a language from the file extension, then refines it from the content on load, save and paste.",
+      },
+      {
+        title: "Beautify JSON, SQL and XML",
+        body: "One shortcut pretty-prints the selection or the whole document.",
+      },
+      {
+        title: "Preview as you type",
+        body: "Side panes preview JSON, SQL and Markdown next to the source.",
+      },
+    ],
     platforms: ["mac", "windows"],
     release: {
       baseUrl: "https://pub-d2278ebfc6e74887b1c58c069c7119e7.r2.dev",
@@ -100,51 +132,48 @@ export const products: Product[] = [
       },
     },
     downloads: [
-      {
-        label: "Download for Mac",
-        href: null,
-        platform: "mac",
-      },
+      { label: "Download for Mac", href: null, platform: "mac" },
       { label: "Download for Windows", href: null, platform: "windows" },
-    ],
-    features: [
-      {
-        icon: ScanSearch,
-        title: "Smarter file detection",
-        body: "Google's Magika ML model identifies files by content, not extension. Even mislabeled .txt files get correct syntax highlighting instantly.",
-      },
-      {
-        icon: Zap,
-        title: "Instant launch",
-        body: "Zero bloat. Optimized V8 engine with sub-millisecond interaction latency and silent background auto-updates.",
-      },
-      {
-        icon: RotateCcw,
-        title: "Snapshot & restore",
-        body: "Unsaved buffers are persisted to disk and brought back exactly as you left them — even untitled scratch tabs survive a crash.",
-      },
-      {
-        icon: PackageMinus,
-        title: "Slimmer installer",
-        body: "A massive cleanup dropped the Windows build from 254 MB to just 93 MB. Your bandwidth and SSD both said thanks.",
-      },
-    ],
-    stack: [
-      { label: "Editor engine", value: "Monaco" },
-      { label: "UI framework", value: "React 18" },
-      { label: "Language", value: "TypeScript" },
-      { label: "Core shell", value: "Electron" },
     ],
   },
   {
     slug: "lumia",
+    repo: "lumia",
     name: "Lumia",
+    group: "everyday",
+    glyph: "viewfinder",
+    hue: {
+      tile: "#071E24",
+      c300: "#67E8F9",
+      c700: "#0E7490",
+      g0: "#CFFAFE",
+      g1: "#22D3EE",
+      g2: "#0891B2",
+    },
     tagline: { lead: "Capture. Annotate.", accent: "Share anywhere." },
     description:
       "A blazing-fast screen capture tool with a built-in annotation editor, video recorder, and workflow engine for screenshots, recordings, and instant sharing.",
     blurb: "Capture & share.",
-    icon: Camera,
-    accent: "#fb7185",
+    short: "Capture, record, annotate and share your screen.",
+    long: "Lumia captures, records, annotates and shares your screen on Windows and Mac. Inspired by ShareX and rebuilt from scratch, it adds scrolling capture, video recording with live drawing, and a workflow engine that uploads to several places in parallel.",
+    uses: [
+      {
+        title: "Capture any part of the screen",
+        body: "Region, window, monitor or full screen. The screen freezes at the hotkey, so tooltips and menus stay in the shot.",
+      },
+      {
+        title: "Capture whole pages",
+        body: "Scrolling capture through a browser extension, or classic screen scroll for any app.",
+      },
+      {
+        title: "Record video",
+        body: "Record a region, window or screen with a floating toolbar and live drawing.",
+      },
+      {
+        title: "Share in one step",
+        body: "Upload to Cloudflare R2 or Google Drive and copy the link automatically.",
+      },
+    ],
     platforms: ["mac", "windows"],
     release: {
       baseUrl: "https://release.lumia.asia",
@@ -159,44 +188,39 @@ export const products: Product[] = [
       // Windows ships a single multi-arch installer (see latest.yml `path:`).
       { label: "Download for Windows", href: null, platform: "windows" },
     ],
-    features: [
-      {
-        icon: Camera,
-        title: "Smart capture",
-        body: "Region select, fullscreen, active window, screen recording, and GIF capture — each with its own customizable global hotkey.",
-      },
-      {
-        icon: PenTool,
-        title: "Annotation editor",
-        body: "Pen, rectangles, ellipses, arrows, text overlays, and blur. Mark up screenshots with full precision.",
-      },
-      {
-        icon: Video,
-        title: "Video annotator",
-        body: "Scrub through recordings, annotate individual frames, extract frame PNGs, or export the fully annotated video.",
-      },
-      {
-        icon: Upload,
-        title: "Multi-destination upload",
-        body: "Send to Imgur, custom HTTP endpoints, or save locally — all in parallel with independent failure handling.",
-      },
-    ],
-    stack: [
-      { label: "Runtime", value: "Electron 33" },
-      { label: "UI framework", value: "React 18" },
-      { label: "Annotation", value: "Konva.js" },
-      { label: "Build", value: "electron-vite" },
-    ],
   },
   {
     slug: "novafinder",
+    repo: "NovaFinder",
     name: "NovaFinder",
+    group: "everyday",
+    glyph: "magnifier",
+    badge: "Beta",
+    hue: {
+      tile: "#24101C",
+      c300: "#F9A8D4",
+      c700: "#BE185D",
+      g0: "#FCE7F3",
+      g1: "#F472B6",
+      g2: "#DB2777",
+    },
     tagline: { lead: "Find anything.", accent: "Instantly." },
     description:
       "A spotlight-grade launcher that searches files, apps, clipboard history, and your own scripts — across every drive you've ever plugged in.",
     blurb: "Spotlight, rethought.",
-    icon: FolderSearch,
-    accent: "#67e8f9",
+    short: "A file manager for the parts Finder gets wrong.",
+    long: "NovaFinder is an open-source file manager for Mac, built because Finder leaves a lot on the table. It is a companion to Finder rather than a replacement, and focuses on what Finder does worst, starting with saved searches that actually stick around. It is currently in beta.",
+    uses: [
+      {
+        title: "Keep your saved searches",
+        body: "Smart Folders by kind, size, name or content, right in the sidebar.",
+      },
+      {
+        title: "Work alongside Finder",
+        body: "A companion to Finder, not a replacement, so your usual workflow stays put.",
+      },
+      { title: "Built in the open", body: "The full source is on GitHub." },
+    ],
     platforms: ["mac"],
     release: {
       baseUrl: "https://pub-de252b6499d04b519a15bbeb1b89f4ec.r2.dev",
@@ -204,45 +228,35 @@ export const products: Product[] = [
         mac: "latest-mac.yml",
       },
     },
-    downloads: [{ label: "Download for Mac (Apple Silicon)", href: null, platform: "mac", arch: "arm64" }],
-    features: [
-      {
-        icon: Search,
-        title: "Fuzzy everywhere",
-        body: "Type three letters and NovaFinder ranks files, commands, browser tabs and clipboard entries together.",
-      },
-      {
-        icon: Database,
-        title: "Live index",
-        body: "An incremental crawler keeps results within milliseconds of reality without ever pegging your CPU.",
-      },
-      {
-        icon: Terminal,
-        title: "Scriptable actions",
-        body: "Drop a Bash, Python or TypeScript file into the actions folder and it becomes a first-class verb.",
-      },
-      {
-        icon: Lock,
-        title: "Privacy isolated",
-        body: "All indexes live on-device. No outbound calls. Ever.",
-      },
-    ],
-    stack: [
-      { label: "Indexer", value: "Tantivy" },
-      { label: "UI framework", value: "React 18" },
-      { label: "Runtime", value: "Electron" },
-      { label: "Language", value: "TypeScript" },
+    downloads: [
+      { label: "Download for Mac (Apple Silicon)", href: null, platform: "mac", arch: "arm64" },
     ],
   },
   {
     slug: "novagitx",
+    repo: "novagitx",
     name: "NovaGitX",
+    group: "dev",
+    glyph: "branch",
+    hue: {
+      tile: "#111A2C",
+      c300: "#93C5FD",
+      c700: "#1D4ED8",
+      g0: "#DBEAFE",
+      g1: "#60A5FA",
+      g2: "#2563EB",
+    },
     tagline: { lead: "Git, finally", accent: "graceful." },
     description:
       "A modern Git client that visualizes branches the way you think about them — and stays out of your way the rest of the time.",
     blurb: "Git, graceful.",
-    icon: GitBranch,
-    accent: "#a78bfa",
+    short: "A native-feeling Git client with a clear commit graph.",
+    long: "NovaGitX is a Git GUI inspired by GitExtensions and redesigned for Mac. See your branches as a lane graph, stage single hunks and review diffs without leaving the app.",
+    uses: [
+      { title: "See the commit graph", body: "Branches drawn as lanes, in topological order." },
+      { title: "Stage files and hunks", body: "Stage or unstage whole files or single hunks." },
+      { title: "Review diffs", body: "A unified diff with line numbers and hunk-level staging." },
+    ],
     platforms: ["mac"],
     release: {
       baseUrl: "https://pub-1841f7e00ed14c2da91ef9b585ba06e8.r2.dev",
@@ -254,44 +268,36 @@ export const products: Product[] = [
       { label: "Download for Mac (Apple Silicon)", href: null, platform: "mac", arch: "arm64" },
       { label: "Download for Mac (Intel)", href: null, platform: "mac", arch: "x64" },
     ],
-    features: [
-      {
-        icon: Network,
-        title: "Spatial graph",
-        body: "A force-directed commit graph that scales from a side project to a thousand-branch monorepo without going blurry.",
-      },
-      {
-        icon: GitMerge,
-        title: "Interactive rebase",
-        body: "Drag commits to reorder, squash by clicking, edit messages inline. Aborts safely on conflict.",
-      },
-      {
-        icon: Layers,
-        title: "Hunk-level staging",
-        body: "Stage individual lines with a click. Word-level diffs make code review obvious.",
-      },
-      {
-        icon: GitPullRequest,
-        title: "Hosted aware",
-        body: "First-class GitHub, GitLab and Gitea integration: PRs, CI status and reviews live next to the graph.",
-      },
-    ],
-    stack: [
-      { label: "Engine", value: "libgit2" },
-      { label: "UI framework", value: "React 18" },
-      { label: "Runtime", value: "Electron" },
-      { label: "Language", value: "TypeScript" },
-    ],
   },
   {
     slug: "novaclipboard",
+    repo: "NovaClipboard",
     name: "NovaClipboard",
+    group: "everyday",
+    glyph: "clipboard",
+    hue: {
+      tile: "#221A08",
+      c300: "#FCD34D",
+      c700: "#B45309",
+      g0: "#FEF3C7",
+      g1: "#FBBF24",
+      g2: "#D97706",
+    },
     tagline: { lead: "Every copy,", accent: "one keystroke away." },
     description:
-      "A native macOS menu-bar clipboard manager. Press a hotkey, pick from your recent copies, paste into the active app — no Dock icon, no servers, all data stays on your Mac.",
+      "A native Mac menu-bar clipboard manager. Press a hotkey, pick from your recent copies, paste into the active app — no Dock icon, no servers, all data stays on your Mac.",
     blurb: "Clipboard, summonable.",
-    icon: Clipboard,
-    accent: "#34d399",
+    short: "Your recent copies, one hotkey away.",
+    long: "NovaClipboard is a native Mac menu-bar clipboard manager. Press a hotkey, pick from your recent copies and paste into the active app. There is no Dock icon and no server, and all data stays on your Mac.",
+    uses: [
+      {
+        title: "Summon it with a hotkey",
+        body: "Press a hotkey and pick from your recent copies.",
+      },
+      { title: "Paste where you are", body: "Your pick goes straight into the active app." },
+      { title: "Stay out of the way", body: "It lives in the menu bar, with no Dock icon." },
+      { title: "Keep data on your Mac", body: "No servers. Everything stays local." },
+    ],
     platforms: ["mac"],
     release: {
       baseUrl: "https://pub-4ab8b2cc0203430fbd129ff8f2b54b00.r2.dev",
@@ -301,51 +307,37 @@ export const products: Product[] = [
       format: "appcast",
     },
     downloads: [
-      {
-        label: "Download for Mac (Apple Silicon)",
-        href: null,
-        platform: "mac",
-        arch: "arm64",
-      },
-    ],
-    features: [
-      {
-        icon: Command,
-        title: "Global hotkey",
-        body: "Summon the history panel anchored to your caret, mouse, or a fixed location with ⌘⇧V. It vanishes the moment you paste.",
-      },
-      {
-        icon: Files,
-        title: "Captures everything",
-        body: "Text, rich text, links, images, and file references — plus screenshots written to disk are picked up automatically via FSEvents.",
-      },
-      {
-        icon: Hash,
-        title: "Quick-paste 1–9",
-        body: "⌘1 through ⌘9 paste a pinned or recent item directly into the active app, no panel needed.",
-      },
-      {
-        icon: Shield,
-        title: "Private by design",
-        body: "Blocklist for 1Password, LastPass, Bitwarden and any concealed-type pasteboard. Nothing leaves your Mac.",
-      },
-    ],
-    stack: [
-      { label: "Language", value: "Swift" },
-      { label: "UI framework", value: "SwiftUI" },
-      { label: "Storage", value: "SwiftData" },
-      { label: "Build", value: "XcodeGen" },
+      { label: "Download for Mac (Apple Silicon)", href: null, platform: "mac", arch: "arm64" },
     ],
   },
   {
     slug: "novakey",
+    repo: "novakey",
     name: "NovaKey",
+    group: "everyday",
+    glyph: "diacritic",
+    hue: {
+      tile: "#241509",
+      c300: "#FDBA74",
+      c700: "#C2410C",
+      g0: "#FFEDD5",
+      g1: "#FB923C",
+      g2: "#EA580C",
+    },
     tagline: { lead: "Vietnamese input,", accent: "everywhere you type." },
     description:
       "A Vietnamese input method that uses the backspace technique instead of a composition window — so Telex works in browser URL bars, terminals, editors, and every other app. Fast, lightweight, and private.",
     blurb: "Type Vietnamese.",
-    icon: Keyboard,
-    accent: "#fb7185",
+    short: "Type Vietnamese anywhere, in a 228 KB app.",
+    long: "NovaKey is a Vietnamese input method that uses the backspace technique. It is fast and tiny, about 228 KB, and works in browsers, terminals and every app.",
+    uses: [
+      {
+        title: "Type Telex",
+        body: "Full support for tones (s f r x j z) and modifiers (aa ee oo aw ow uw dd).",
+      },
+      { title: "Works in every app", body: "Browsers, terminals and native apps alike." },
+      { title: "Stays tiny", body: "About 228 KB, fast and light." },
+    ],
     platforms: ["mac", "windows"],
     release: {
       baseUrl: "https://pub-7caaa511a0944e589f8c9a3382975fbd.r2.dev",
@@ -355,55 +347,41 @@ export const products: Product[] = [
       },
     },
     downloads: [
-      {
-        label: "Download for Mac",
-        href: null,
-        platform: "mac",
-      },
-      {
-        label: "Download for Windows",
-        href: null,
-        platform: "windows",
-      },
-    ],
-    features: [
-      {
-        icon: Globe,
-        title: "Works everywhere",
-        body: "A global CGEvent tap sends backspaces and Unicode instead of using IMKit's marked text, so it just works in Chrome URL bars, Terminal, VS Code, and Spotlight.",
-      },
-      {
-        icon: Languages,
-        title: "Smart tone placement",
-        body: "Modern Vietnamese orthographic rules place tones correctly — hoang + f lands the huyền on the a, not the o.",
-      },
-      {
-        icon: Shield,
-        title: "English-word protection",
-        body: "Telex transforms are gated on syllable validity, so class, know, and add stay literal instead of turning into Vietnamese.",
-      },
-      {
-        icon: RotateCcw,
-        title: "Double-press escape",
-        body: "Typing a Telex key twice trusts the second press unconditionally — disst becomes dist, noww becomes now, corrrection becomes correction.",
-      },
-    ],
-    stack: [
-      { label: "Engine", value: "Swift" },
-      { label: "Windows port", value: "Rust" },
-      { label: "Interception", value: "CGEventTap" },
-      { label: "UI", value: "SwiftUI" },
+      { label: "Download for Mac", href: null, platform: "mac" },
+      { label: "Download for Windows", href: null, platform: "windows" },
     ],
   },
   {
     slug: "nmtr",
+    repo: "nmtr",
     name: "nmtr",
+    group: "dev",
+    glyph: "pulse",
+    hue: {
+      tile: "#161F0A",
+      c300: "#BEF264",
+      c700: "#4D7C0F",
+      g0: "#ECFCCB",
+      g1: "#A3E635",
+      g2: "#65A30D",
+    },
     tagline: { lead: "Network diagnostics,", accent: "reimagined live." },
     description:
       "A modern app that fuses continuous traceroute with real-time ping into a single live dashboard — per-hop stats, offline geolocation, and full session recording. Available on Windows.",
     blurb: "Live network.",
-    icon: Activity,
-    accent: "#fbbf24",
+    short: "Live traceroute and ping, hop by hop.",
+    long: "nmtr is a network-diagnostics suite for Windows. At its core is a modern rewrite of WinMTR: continuous traceroute and real-time ping in a live dashboard, with per-hop statistics and geolocation.",
+    uses: [
+      {
+        title: "Trace the route live",
+        body: "Continuous traceroute and real-time ping, a modern take on WinMTR.",
+      },
+      {
+        title: "Read every hop",
+        body: "Loss, sent, received, last, average, best, worst and jitter for each hop.",
+      },
+      { title: "Watch the heartbeat", body: "A live chart of final-hop latency over the session." },
+    ],
     platforms: ["windows"],
     release: {
       baseUrl: "https://pub-153a98778378495eb01f90435c7b392a.r2.dev",
@@ -411,51 +389,39 @@ export const products: Product[] = [
         windows: "latest.yml",
       },
     },
-    downloads: [
-      {
-        label: "Download for Windows",
-        href: null,
-        platform: "windows",
-      },
-    ],
-    features: [
-      {
-        icon: Cpu,
-        title: "Parallel ICMP engine",
-        body: "Direct calls into Iphlpapi.dll via FFI probe every TTL simultaneously, with kernel-measured RTT — no shelling out to traceroute.",
-      },
-      {
-        icon: BarChart3,
-        title: "Per-hop statistics",
-        body: "Live loss %, packet counts, last/avg/best/worst latency, jitter, and a 60-point rolling sparkline for every hop in the route.",
-      },
-      {
-        icon: Globe,
-        title: "Offline geo map",
-        body: "Bundled TopoJSON world map renders each geolocated hop entirely offline. Zero external network requests during a trace.",
-      },
-      {
-        icon: Route,
-        title: "Route change detection",
-        body: "When a hop's IP shifts mid-session, nmtr marks it on the map and logs the event in a dedicated panel so you can correlate later.",
-      },
-    ],
-    stack: [
-      { label: "Shell", value: "Electron 41" },
-      { label: "UI framework", value: "React 18" },
-      { label: "State", value: "Zustand" },
-      { label: "Probing", value: "koffi FFI" },
-    ],
+    downloads: [{ label: "Download for Windows", href: null, platform: "windows" }],
   },
   {
     slug: "novaproxy",
+    repo: "novaproxy",
     name: "NovaProxy",
+    group: "dev",
+    glyph: "wire",
+    hue: {
+      tile: "#122019",
+      c300: "#9BE3B4",
+      c700: "#237A46",
+      g0: "#DCFCE7",
+      g1: "#6EDB9A",
+      g2: "#2E9A59",
+    },
     tagline: { lead: "Every request,", accent: "in the open." },
     description:
       "An HTTPS debugging proxy that decodes what your apps and AI agents are really sending — live flows, MCP-aware inspection, rewrite rules, breakpoints, and scriptable interception.",
     blurb: "See the wire.",
-    icon: Waves,
-    accent: "#2dd4bf",
+    short: "Inspect HTTP and HTTPS traffic as it happens.",
+    long: "NovaProxy is an open-source, cross-platform HTTP and HTTPS debugging proxy, an alternative to Proxyman. It runs a native Rust core inside a Tauri shell with a React interface.",
+    uses: [
+      {
+        title: "Intercept HTTPS",
+        body: "A native Rust core decrypts and shows HTTPS requests and responses.",
+      },
+      {
+        title: "Switch the system proxy",
+        body: "Point your machine at NovaProxy with one toggle.",
+      },
+      { title: "An open Proxyman alternative", body: "Free and open source, built on Tauri." },
+    ],
     platforms: ["mac", "windows"],
     release: {
       baseUrl: "https://pub-4aa88a825303408b9dd0b955b27b5fc1.r2.dev",
@@ -469,79 +435,55 @@ export const products: Product[] = [
       { label: "Download for Mac (Apple Silicon)", href: null, platform: "mac", arch: "arm64" },
       { label: "Download for Windows", href: null, platform: "windows", arch: "x64" },
     ],
-    features: [
-      {
-        icon: Radio,
-        title: "Live flow capture",
-        body: "Flip the system proxy on and every request streams in — grouped by host, filterable by path, method or status, with full request and response bodies decoded.",
-      },
-      {
-        icon: Network,
-        title: "MCP aware",
-        body: "One toggle isolates Model Context Protocol traffic and renders the JSON-RPC as tool calls, arguments and results instead of a wall of framed text.",
-      },
-      {
-        icon: ArrowRightLeft,
-        title: "Rules & breakpoints",
-        body: "Rewrite headers, map a host to localhost, inject latency or failures — or pause a flow mid-flight and edit the request before it leaves.",
-      },
-      {
-        icon: Terminal,
-        title: "Scriptable hooks",
-        body: "Attach JavaScript to request and response events for signing, redaction or assertions. No proxy restart, no rebuild.",
-      },
-    ],
-    stack: [
-      { label: "Proxy core", value: "Rust" },
-      { label: "Shell", value: "Tauri 2" },
-      { label: "UI framework", value: "React 19" },
-      { label: "TLS", value: "rustls MITM" },
-    ],
   },
   {
     slug: "cirrus",
+    repo: "novacirrus",
     name: "Nova Cirrus",
+    group: "everyday",
+    glyph: "cloud",
+    badge: "Soon",
+    hue: {
+      tile: "#14132B",
+      c300: "#A5B4FC",
+      c700: "#4338CA",
+      g0: "#E0E7FF",
+      g1: "#818CF8",
+      g2: "#4F46E5",
+    },
     tagline: { lead: "Your files, in the", accent: "open sky." },
     description:
       "Self-hostable object storage with a delightful web UI, S3-compatible API, and end-to-end encrypted shares.",
     blurb: "Storage, your way.",
-    icon: Cloud,
-    accent: "#38bdf8",
+    short: "Self-hostable object storage with a web dashboard.",
+    long: "Nova Cirrus is self-hostable object storage with a web dashboard, an S3-compatible API and end-to-end encrypted shares. It ships as a single server binary for Linux. The first build is not out yet.",
+    uses: [
+      {
+        title: "S3-compatible",
+        body: "Point any S3 SDK at Cirrus: multipart uploads, presigned URLs and lifecycle rules included.",
+      },
+      {
+        title: "End-to-end encrypted shares",
+        body: "Share links decrypt in the recipient's browser, so the server only sees ciphertext.",
+      },
+      {
+        title: "One-binary deploy",
+        body: "A single static binary for any Linux host. SQLite for metadata, the filesystem for files.",
+      },
+      { title: "Web dashboard", body: "Upload, preview, share and audit from a browser tab." },
+    ],
     platforms: ["web", "linux"],
     downloads: [
       { label: "Open the dashboard", href: null, platform: "web" },
       { label: "Download the server", href: null, platform: "linux" },
     ],
-    features: [
-      {
-        icon: Plug,
-        title: "S3-compatible",
-        body: "Point any S3 SDK at Cirrus and it just works — multipart uploads, presigned URLs, lifecycle rules and all.",
-      },
-      {
-        icon: Lock,
-        title: "E2E shares",
-        body: "Generate a link that decrypts in the recipient's browser. The server only ever sees ciphertext.",
-      },
-      {
-        icon: Package,
-        title: "One-binary deploy",
-        body: "Ship a single static binary to any Linux host. SQLite for metadata, filesystem for blobs. No Postgres required.",
-      },
-      {
-        icon: LayoutDashboard,
-        title: "Web dashboard",
-        body: "Upload, preview, share and audit from a browser tab that feels like a desktop app.",
-      },
-    ],
-    stack: [
-      { label: "Server", value: "Go" },
-      { label: "Web UI", value: "React 18" },
-      { label: "Metadata", value: "SQLite" },
-      { label: "Encryption", value: "age + AES-GCM" },
-    ],
   },
 ];
+
+// An app counts as released when it has a manifest to download from.
+export function isReleased(product: Product): boolean {
+  return Boolean(product.release);
+}
 
 export function isProductSlug(value: string): value is ProductSlug {
   return (productSlugs as readonly string[]).includes(value);
@@ -655,7 +597,9 @@ function pickAssetFromFiles(
     return 2;
   };
 
-  return [...urls].sort((a, b) => archRank(a) - archRank(b) || extensionRank(a) - extensionRank(b))[0];
+  return [...urls].sort(
+    (a, b) => archRank(a) - archRank(b) || extensionRank(a) - extensionRank(b),
+  )[0];
 }
 
 // Manifests that group assets under platform keys (`darwin-aarch64:`, `windows-x86_64:`)
@@ -760,7 +704,9 @@ function parseJsonManifest(
 }
 
 function parseAppcast(content: string): { version: string | null; url: string | null } {
-  const versionMatch = content.match(/<sparkle:shortVersionString>([^<]+)<\/sparkle:shortVersionString>/i);
+  const versionMatch = content.match(
+    /<sparkle:shortVersionString>([^<]+)<\/sparkle:shortVersionString>/i,
+  );
   const enclosureMatch = content.match(/<enclosure[^>]*\burl\s*=\s*["']([^"']+)["'][^>]*\/?>/i);
   return {
     version: versionMatch ? versionMatch[1].trim() : null,
@@ -793,5 +739,5 @@ function joinUrl(baseUrl: string, assetPath: string) {
 }
 
 export function getProductRoute(slug: ProductSlug): string {
-  return slug === "novapad" ? "/" : `/${slug}`;
+  return `/${slug}`;
 }
