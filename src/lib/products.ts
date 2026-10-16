@@ -30,10 +30,11 @@ export type AppGlyph =
   | "cloud";
 
 // Per-app hue from the Nova palette: icon tile, 300 (dark-theme accent),
-// 700 (light-theme accent) and the three stops of the "N" gradient.
+// 500 (icon glow), 700 (light-theme accent) and the three stops of the "N" gradient.
 export type AppHue = {
   tile: string;
   c300: string;
+  c500: string;
   c700: string;
   g0: string;
   g1: string;
@@ -94,6 +95,7 @@ export const products: Product[] = [
     hue: {
       tile: "#1E1525",
       c300: "#F0ABFC",
+      c500: "#D946EF",
       c700: "#A21CAF",
       g0: "#FAE8FF",
       g1: "#E879F9",
@@ -145,6 +147,7 @@ export const products: Product[] = [
     hue: {
       tile: "#071E24",
       c300: "#67E8F9",
+      c500: "#06B6D4",
       c700: "#0E7490",
       g0: "#CFFAFE",
       g1: "#22D3EE",
@@ -199,6 +202,7 @@ export const products: Product[] = [
     hue: {
       tile: "#24101C",
       c300: "#F9A8D4",
+      c500: "#EC4899",
       c700: "#BE185D",
       g0: "#FCE7F3",
       g1: "#F472B6",
@@ -241,6 +245,7 @@ export const products: Product[] = [
     hue: {
       tile: "#111A2C",
       c300: "#93C5FD",
+      c500: "#3B82F6",
       c700: "#1D4ED8",
       g0: "#DBEAFE",
       g1: "#60A5FA",
@@ -278,6 +283,7 @@ export const products: Product[] = [
     hue: {
       tile: "#221A08",
       c300: "#FCD34D",
+      c500: "#F59E0B",
       c700: "#B45309",
       g0: "#FEF3C7",
       g1: "#FBBF24",
@@ -319,6 +325,7 @@ export const products: Product[] = [
     hue: {
       tile: "#241509",
       c300: "#FDBA74",
+      c500: "#F97316",
       c700: "#C2410C",
       g0: "#FFEDD5",
       g1: "#FB923C",
@@ -360,6 +367,7 @@ export const products: Product[] = [
     hue: {
       tile: "#161F0A",
       c300: "#BEF264",
+      c500: "#84CC16",
       c700: "#4D7C0F",
       g0: "#ECFCCB",
       g1: "#A3E635",
@@ -400,6 +408,7 @@ export const products: Product[] = [
     hue: {
       tile: "#122019",
       c300: "#9BE3B4",
+      c500: "#3EB56D",
       c700: "#237A46",
       g0: "#DCFCE7",
       g1: "#6EDB9A",
@@ -446,6 +455,7 @@ export const products: Product[] = [
     hue: {
       tile: "#14132B",
       c300: "#A5B4FC",
+      c500: "#6366F1",
       c700: "#4338CA",
       g0: "#E0E7FF",
       g1: "#818CF8",

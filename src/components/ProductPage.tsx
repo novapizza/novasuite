@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, ChevronLeft, CircleCheck, Clock, Github } from "lucide-react";
+import { ChevronLeft, CircleCheck, Clock, Github } from "lucide-react";
 import { useEffect, useId, useState, type CSSProperties } from "react";
 import { AppIcon } from "@/components/brand/AppIcon";
 import { PlatformIcon } from "@/components/brand/PlatformIcon";
@@ -132,41 +132,27 @@ function DownloadArea({
       return rank(a) - rank(b);
     });
   const [primary, ...rest] = downloads;
-  const repoHref = `https://github.com/novapizza/${product.repo}`;
 
   return (
     <div className="flex flex-col gap-2.5">
-      <div className="flex items-center gap-2.5">
-        {released && primary?.href ? (
-          <a
-            href={primary.href}
-            className="flex-1 rounded-full bg-[var(--app-accent)] px-[18px] py-3.5 text-center text-[15px] font-semibold text-white transition-transform hover:-translate-y-0.5 dark:bg-[var(--app-accent-night)] dark:text-[#16131F]"
-          >
-            {primary.label.replace(/ \(.*\)$/, "")}
-            {buildName(primary.label) && (
-              <span className="sr-only"> ({buildName(primary.label)})</span>
-            )}
-          </a>
-        ) : (
-          <span
-            aria-disabled="true"
-            className="flex-1 rounded-full bg-surface-2 px-[18px] py-3.5 text-center text-[15px] font-semibold text-muted-foreground"
-          >
-            {released
-              ? loaded
-                ? "Download unavailable"
-                : "Checking latest build…"
-              : "Coming soon"}
-          </span>
-        )}
+      {released && primary?.href ? (
         <a
-          href={repoHref}
-          aria-label={`${product.name} on GitHub`}
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-[1.5px] border-pill-line text-foreground hover:bg-pill-hover"
+          href={primary.href}
+          className="block whitespace-nowrap rounded-full bg-[var(--app-accent)] px-[18px] py-3.5 text-center text-[15px] font-semibold text-white transition-transform hover:-translate-y-0.5 dark:bg-[var(--app-accent-night)] dark:text-[#16131F]"
         >
-          <ArrowUpRight className="h-[18px] w-[18px]" strokeWidth={1.6} />
+          {primary.label.replace(/ \(.*\)$/, "")}
+          {buildName(primary.label) && (
+            <span className="sr-only"> ({buildName(primary.label)})</span>
+          )}
         </a>
-      </div>
+      ) : (
+        <span
+          aria-disabled="true"
+          className="block rounded-full bg-surface-2 px-[18px] py-3.5 text-center text-[15px] font-semibold text-muted-foreground"
+        >
+          {released ? (loaded ? "Download unavailable" : "Checking latest build…") : "Coming soon"}
+        </span>
+      )}
       {released && primary?.href && buildName(primary.label) && (
         <p className="m-0 text-xs text-muted-foreground">
           For {buildName(primary.label)}
@@ -310,7 +296,12 @@ export function ProductPage({ product }: { product: Product }) {
             </li>
             <li className="flex items-center gap-2.5">
               <Github className="h-[18px] w-[18px]" strokeWidth={1.6} />
-              Open source on GitHub
+              <a
+                href={`https://github.com/novapizza/${product.repo}`}
+                className="underline-offset-2 hover:underline"
+              >
+                Open source on GitHub
+              </a>
             </li>
           </ul>
 
