@@ -12,8 +12,8 @@ import appCss from "../styles.css?url";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 
-// Runs before paint to apply the persisted theme and avoid a light/dark flash.
-const themeInitScript = `(function(){try{var s=localStorage.getItem('theme');var t=(s==='light'||s==='dark')?s:(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');if(t==='dark')document.documentElement.classList.add('dark');}catch(_){}})();`;
+// Dark is the default theme. Runs before paint so a saved "light" choice applies without a flash.
+const themeInitScript = `(function(){try{if(localStorage.getItem('theme')==='light')document.documentElement.classList.remove('dark');}catch(_){}})();`;
 
 function NotFoundComponent() {
   return (
@@ -106,9 +106,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
-  // The inline theme script sets .dark before hydration, so <html> differs from SSR on purpose.
+  // The inline theme script may drop .dark before hydration, so <html> can differ from SSR on purpose.
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <HeadContent />
