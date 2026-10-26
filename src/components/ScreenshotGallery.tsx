@@ -141,10 +141,11 @@ function PlaceholderWindow({
   platform: Platform;
   label?: string;
 }) {
-  const windows = platform === "windows";
+  // Windows and most Linux desktops put the window controls on the right.
+  const rightControls = platform === "windows" || platform === "linux";
   return (
     <div className="flex h-[80%] w-[86%] flex-col sm:h-[74%] sm:w-[80%] overflow-hidden rounded-[14px] border border-black/10 bg-white/70 dark:border-white/12 dark:bg-white/[0.04]">
-      {windows ? (
+      {rightControls ? (
         <div className="flex items-center justify-end gap-4 border-b border-black/8 px-3.5 py-2.5 text-black/40 dark:border-white/8 dark:text-white/45">
           <span className="h-px w-2.5 bg-current" />
           <span className="h-2.5 w-2.5 border border-current" />

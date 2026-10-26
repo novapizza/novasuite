@@ -12,6 +12,8 @@ export const productSlugs = [
 export type ProductSlug = (typeof productSlugs)[number];
 
 export type Platform = "mac" | "windows" | "linux" | "web";
+// Platforms with an installer to download, read from a release manifest.
+export type DesktopPlatform = "mac" | "windows" | "linux";
 
 export type ManifestFormat = "yaml" | "appcast" | "json";
 
@@ -66,12 +68,20 @@ export type Product = {
   platforms: Platform[];
   // Real captures per platform; a platform without any keeps the placeholder frame.
   screenshots?: Partial<Record<Platform, Screenshot[]>>;
-  downloads: { label: string; href: string | null; platform: Platform; arch?: "x64" | "arm64" }[];
+  downloads: {
+    label: string;
+    href: string | null;
+    platform: Platform;
+    arch?: "x64" | "arm64";
+    // Package type to pick from the manifest (".deb"), when a platform ships several.
+    packageType?: string;
+  }[];
   release?: {
     baseUrl: string;
     manifests: {
       mac?: string;
       windows?: string;
+      linux?: string;
     };
     // Omit to infer from the manifest extension (.xml → appcast, .json → json,
     // anything else → yaml). Only set it when the extension lies.
@@ -141,10 +151,10 @@ export const products: Product[] = [
     },
     tagline: { lead: "Words at the", accent: "speed of light." },
     description:
-      "Professional text editing for the Mac ecosystem with full Windows compatibility. Fast, extensible, beautifully clear.",
+      "Professional text editing for the Mac ecosystem with full Windows and Linux compatibility. Fast, extensible, beautifully clear.",
     blurb: "The editor.",
     short: "A fast, modern text and code editor with live previews.",
-    long: "NovaPad is a lightweight, fast and modern text editor for Mac and Windows. It runs on Monaco, the same editor core as VS Code, so you get highlighting for about 70 languages, IntelliSense, bracket colors and folding. It detects the language from the file and its content, and pretty-prints JSON, SQL and XML with one shortcut.",
+    long: "NovaPad is a lightweight, fast and modern text editor for Mac, Windows and Linux. It runs on Monaco, the same editor core as VS Code, so you get highlighting for about 70 languages, IntelliSense, bracket colors and folding. It detects the language from the file and its content, and pretty-prints JSON, SQL and XML with one shortcut.",
     uses: [
       {
         title: "Edit with the Monaco engine",
@@ -163,7 +173,7 @@ export const products: Product[] = [
         body: "Side panes preview JSON, SQL and Markdown next to the source.",
       },
     ],
-    platforms: ["mac", "windows"],
+    platforms: ["mac", "windows", "linux"],
     screenshots: {
       mac: novapadScreenshots("mac"),
       windows: novapadScreenshots("windows"),
@@ -173,11 +183,33 @@ export const products: Product[] = [
       manifests: {
         mac: "latest-mac.yml",
         windows: "latest.yml",
+        linux: "latest-linux.yml",
       },
     },
     downloads: [
       { label: "Download for Mac", href: null, platform: "mac" },
       { label: "Download for Windows", href: null, platform: "windows" },
+      {
+        label: "Download for Linux (AppImage)",
+        href: null,
+        platform: "linux",
+        arch: "x64",
+        packageType: ".AppImage",
+      },
+      {
+        label: "Download for Linux (.deb)",
+        href: null,
+        platform: "linux",
+        arch: "x64",
+        packageType: ".deb",
+      },
+      {
+        label: "Download for Linux (.rpm)",
+        href: null,
+        platform: "linux",
+        arch: "x64",
+        packageType: ".rpm",
+      },
     ],
   },
   {
@@ -565,8 +597,9 @@ function fetchManifestText(url: string): Promise<string | null> {
 
 export async function fetchLatestReleaseManifest(
   product: Product,
-  platform: "mac" | "windows",
+  platform: DesktopPlatform,
   arch: "x64" | "arm64",
+  packageType?: string,
 ) {
   const release = product.release;
   if (!release) {
@@ -599,8 +632,13 @@ export async function fetchLatestReleaseManifest(
 
   const version = parseVersionFromYaml(content);
   const assetPath =
-    pickAssetFromFiles(parseFilesFromYaml(content), platform, arch) ??
-    pickAssetFromFiles(parsePlatformBlocksFromYaml(content, platform), platform, arch) ??
+    pickAssetFromFiles(parseFilesFromYaml(content), platform, arch, packageType) ??
+    pickAssetFromFiles(
+      parsePlatformBlocksFromYaml(content, platform),
+      platform,
+      arch,
+      packageType,
+    ) ??
     legacyPathAsset(content, arch);
   if (!assetPath) {
     return { version, href: null };
@@ -629,15 +667,21 @@ function archOfAsset(url: string): "arm64" | "x64" | null {
 
 // Pick the best asset for a platform/arch: exact arch match first, then unmarked
 // builds (electron-builder omits the arch suffix for x64/universal artifacts),
-// preferring installer formats over update archives.
+// preferring installer formats over update archives. A requested package type (".deb")
+// only matches assets of that type.
 function pickAssetFromFiles(
   urls: string[],
-  platform: "mac" | "windows",
+  platform: DesktopPlatform,
   arch: "x64" | "arm64",
+  packageType?: string,
 ): string | null {
+  if (packageType) {
+    const ext = packageType.toLowerCase();
+    urls = urls.filter((url) => url.toLowerCase().endsWith(ext));
+  }
   if (urls.length === 0) return null;
 
-  const extensions = platform === "mac" ? [".dmg", ".pkg", ".zip"] : [".exe", ".msi", ".zip"];
+  const extensions = installerExtensions[platform];
   const extensionRank = (url: string) => {
     const index = extensions.findIndex((ext) => url.toLowerCase().endsWith(ext));
     return index === -1 ? extensions.length : index;
@@ -656,7 +700,7 @@ function pickAssetFromFiles(
 
 // Manifests that group assets under platform keys (`darwin-aarch64:`, `windows-x86_64:`)
 // instead of a flat `files:` list — collect every `url:` inside a matching block.
-function parsePlatformBlocksFromYaml(content: string, platform: "mac" | "windows"): string[] {
+function parsePlatformBlocksFromYaml(content: string, platform: DesktopPlatform): string[] {
   const urls: string[] = [];
   let blockIndent = -1;
   for (const line of content.split(/\r?\n/)) {
@@ -689,14 +733,21 @@ function inferManifestFormat(manifestName: string): ManifestFormat {
   return "yaml";
 }
 
-const platformAliases: Record<"mac" | "windows", string[]> = {
+const installerExtensions: Record<DesktopPlatform, string[]> = {
+  mac: [".dmg", ".pkg", ".zip"],
+  windows: [".exe", ".msi", ".zip"],
+  linux: [".appimage", ".deb", ".rpm", ".tar.gz"],
+};
+
+const platformAliases: Record<DesktopPlatform, string[]> = {
   mac: ["mac", "macos", "darwin", "osx"],
   windows: ["windows", "win", "win32", "win64"],
+  linux: ["linux"],
 };
 
 // Matches "windows", "windows-x86_64", "darwin_aarch64" — the flat-key and
 // Tauri-style `platforms` shapes both use the same convention.
-function keyMatchesPlatform(key: string, platform: "mac" | "windows") {
+function keyMatchesPlatform(key: string, platform: DesktopPlatform) {
   const normalized = key.toLowerCase();
   return platformAliases[platform].some(
     (alias) =>
@@ -723,7 +774,7 @@ function collectUrls(value: unknown, out: string[]) {
 
 function parseJsonManifest(
   content: string,
-  platform: "mac" | "windows",
+  platform: DesktopPlatform,
   arch: "x64" | "arm64",
 ): { version: string | null; url: string | null } {
   let data: unknown;

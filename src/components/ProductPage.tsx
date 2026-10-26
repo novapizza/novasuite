@@ -4,29 +4,31 @@ import { useEffect, useId, useState, type CSSProperties } from "react";
 import { AppIcon } from "@/components/brand/AppIcon";
 import { PlatformIcon } from "@/components/brand/PlatformIcon";
 import { ScreenshotGallery } from "@/components/ScreenshotGallery";
-import type { Platform, Product } from "@/lib/products";
+import type { DesktopPlatform, Platform, Product } from "@/lib/products";
 import { fetchLatestReleaseManifest, isReleased, platformLabels, products } from "@/lib/products";
 import { cn } from "@/lib/utils";
 
 type ReleaseData = Record<string, { version?: string; href?: string }>;
 
-type ClientEnv = { platform: "mac" | "windows" | null; arch: "x64" | "arm64" };
+type ClientEnv = { platform: DesktopPlatform | null; arch: "x64" | "arm64" };
 
-function downloadKey(platform: Platform, arch?: "x64" | "arm64") {
-  return arch ? `${platform}:${arch}` : platform;
+function downloadKey(platform: Platform, arch?: "x64" | "arm64", packageType?: string) {
+  return [platform, arch, packageType].filter(Boolean).join(":");
 }
 
-function detectClientPlatform(): "mac" | "windows" | null {
+function detectClientPlatform(): DesktopPlatform | null {
   if (typeof navigator === "undefined") return null;
   const ua = navigator.userAgent;
   // iOS declares "like Mac OS X" but can't install desktop builds.
   if (/iphone|ipad|ipod/i.test(ua)) return null;
   if (/macintosh|mac os x/i.test(ua)) return "mac";
   if (/windows/i.test(ua)) return "windows";
+  // Android reports Linux too, and ChromeOS ("CrOS") runs Linux apps only in a sandbox.
+  if (/linux/i.test(ua) && !/android|cros/i.test(ua)) return "linux";
   return null;
 }
 
-async function detectClientArch(platform: "mac" | "windows" | null): Promise<"x64" | "arm64"> {
+async function detectClientArch(platform: DesktopPlatform | null): Promise<"x64" | "arm64"> {
   if (typeof navigator === "undefined") return "x64";
   if ("userAgentData" in navigator) {
     try {
@@ -80,11 +82,16 @@ function useReleases(product: Product) {
         await Promise.all(
           product.downloads.map(async (download) => {
             if (download.href !== null) return;
-            if (download.platform !== "mac" && download.platform !== "windows") return;
+            if (download.platform === "web") return;
             const arch = download.arch ?? clientArch;
-            const result = await fetchLatestReleaseManifest(product, download.platform, arch);
+            const result = await fetchLatestReleaseManifest(
+              product,
+              download.platform,
+              arch,
+              download.packageType,
+            );
             if (!active) return;
-            updated[downloadKey(download.platform, download.arch)] = {
+            updated[downloadKey(download.platform, download.arch, download.packageType)] = {
               version: result.version ?? undefined,
               href: result.href ?? undefined,
             };
@@ -125,7 +132,7 @@ function DownloadArea({
     .filter((d) => d.platform === platform)
     .map((d) => ({
       ...d,
-      href: d.href ?? releaseData[downloadKey(d.platform, d.arch)]?.href ?? null,
+      href: d.href ?? releaseData[downloadKey(d.platform, d.arch, d.packageType)]?.href ?? null,
     }))
     // Builds for the visitor's CPU first.
     .sort((a, b) => {
