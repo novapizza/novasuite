@@ -583,7 +583,9 @@ const manifestTextCache = new Map<string, Promise<string | null>>();
 function fetchManifestText(url: string): Promise<string | null> {
   let cached = manifestTextCache.get(url);
   if (!cached) {
-    cached = fetch(url)
+    // R2 serves manifests without Cache-Control, so browsers would otherwise
+    // keep an old version for hours after a release.
+    cached = fetch(url, { cache: "no-cache" })
       .then((response) => (response.ok ? response.text() : null))
       .catch(() => null)
       .then((text) => {
