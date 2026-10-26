@@ -177,6 +177,8 @@ export const products: Product[] = [
     screenshots: {
       mac: novapadScreenshots("mac"),
       windows: novapadScreenshots("windows"),
+      // No Linux captures yet; the Linux build looks the same as the Mac one.
+      linux: novapadScreenshots("mac"),
     },
     release: {
       baseUrl: "https://pub-d2278ebfc6e74887b1c58c069c7119e7.r2.dev",
