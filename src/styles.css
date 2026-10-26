@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
 @import "tailwindcss" source(none);
 @import "tw-animate-css";
 
@@ -7,7 +7,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
@@ -38,10 +38,12 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --color-iris-lilac: var(--iris-lilac);
-  --color-iris-indigo: var(--iris-indigo);
-  --color-iris-cyan: var(--iris-cyan);
-  --color-iris-sky: var(--iris-sky);
+  --color-surface-2: var(--surface-2);
+  --color-nv-accent: var(--nv-accent);
+  --color-nv-accent-ink: var(--nv-accent-ink);
+  --color-line-strong: var(--line-strong);
+  --color-pill-line: var(--pill-line);
+  --color-pill-hover: var(--pill-hover);
 
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -56,109 +58,113 @@
 :root {
   --radius: 1rem;
 
-  /* Vapor Chrome — iridescent pastels (shared) */
-  --iris-lilac: oklch(0.82 0.09 295);
-  --iris-indigo: oklch(0.69 0.16 280);
-  --iris-cyan: oklch(0.86 0.1 200);
-  --iris-sky: oklch(0.93 0.05 210);
-
-  /* Light mode */
-  --background: oklch(0.99 0.005 280);
-  --foreground: oklch(0.22 0.04 280);
-
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.04 280);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.04 280);
-
-  --primary: oklch(0.62 0.18 280);
-  --primary-foreground: oklch(0.99 0.005 280);
-  --secondary: oklch(0.96 0.02 280);
-  --secondary-foreground: oklch(0.28 0.04 280);
-  --muted: oklch(0.96 0.015 270);
-  --muted-foreground: oklch(0.48 0.03 270);
-  --accent: oklch(0.93 0.04 220);
-  --accent-foreground: oklch(0.28 0.05 270);
+  /* Nova palette — light (Mist) */
+  --background: #f6f5fa;
+  --foreground: #1c1830;
+  --card: #ffffff;
+  --card-foreground: #1c1830;
+  --popover: #ffffff;
+  --popover-foreground: #1c1830;
+  --primary: #6d28d9;
+  --primary-foreground: #ffffff;
+  --secondary: #efedf6;
+  --secondary-foreground: #1c1830;
+  --muted: #efedf6;
+  --muted-foreground: #5b5672;
+  --accent: #efedf6;
+  --accent-foreground: #1c1830;
   --destructive: oklch(0.62 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
+  --border: rgba(28, 24, 48, 0.1);
+  --input: rgba(28, 24, 48, 0.14);
+  --ring: #8b5cf6;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1c1830;
+  --sidebar-primary: #6d28d9;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #efedf6;
+  --sidebar-accent-foreground: #1c1830;
+  --sidebar-border: rgba(28, 24, 48, 0.1);
+  --sidebar-ring: #8b5cf6;
+  --surface-2: #efedf6;
+  --nv-accent: #6d28d9;
+  --nv-accent-ink: #ffffff;
+  --line-strong: rgba(109, 40, 217, 0.4);
+  --pill-line: rgba(28, 24, 48, 0.3);
+  --pill-hover: rgba(28, 24, 48, 0.05);
+  --glass: rgba(246, 245, 250, 0.85);
+  --shadow: rgba(28, 24, 48, 0.12);
 
-  --border: oklch(0.92 0.02 270);
-  --input: oklch(0.92 0.02 270);
-  --ring: oklch(0.69 0.16 280);
-
-  --sidebar: oklch(0.985 0.01 280);
-  --sidebar-foreground: oklch(0.3 0.04 280);
-  --sidebar-primary: oklch(0.62 0.18 280);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.94 0.03 270);
-  --sidebar-accent-foreground: oklch(0.28 0.05 270);
-  --sidebar-border: oklch(0.92 0.02 270);
-  --sidebar-ring: oklch(0.69 0.16 280);
-
-  --gradient-vapor: linear-gradient(135deg, #c4b5fd 0%, #818cf8 30%, #67e8f9 65%, #a5f3fc 100%);
-  --gradient-chrome: linear-gradient(
-    120deg,
-    oklch(0.97 0.03 290),
-    oklch(0.96 0.04 220),
-    oklch(0.97 0.03 200)
-  );
-  --bg-aurora:
-    radial-gradient(1200px 600px at 90% -10%, oklch(0.93 0.08 200 / 0.55), transparent 60%),
-    radial-gradient(1000px 500px at -10% 10%, oklch(0.9 0.1 295 / 0.55), transparent 60%),
-    radial-gradient(800px 500px at 50% 110%, oklch(0.92 0.07 210 / 0.45), transparent 60%);
-  --glass-bg: color-mix(in oklab, white 75%, transparent);
-  --glass-border: color-mix(in oklab, white 80%, var(--iris-indigo) 8%);
-  --shadow-glow: 0 20px 60px -20px color-mix(in oklab, var(--iris-indigo) 35%, transparent);
-  --shadow-soft: 0 1px 2px oklch(0.5 0.05 280 / 0.06), 0 8px 24px -12px oklch(0.5 0.05 280 / 0.1);
+  /* Home hero */
+  --hero-fg: #1c1830;
+  --hero-muted: #4a4463;
+  --hero-muted-2: #5b5672;
+  --hero-eyebrow: #5b21b6;
+  --hero-eyebrow-bg: rgba(255, 255, 255, 0.55);
+  --hero-eyebrow-line: rgba(109, 40, 217, 0.25);
+  --hero-btn-bg: #1c1830;
+  --hero-btn-ink: #ffffff;
+  --hero-ghost-line: rgba(28, 24, 48, 0.28);
+  --hero-fade: rgba(246, 245, 250, 0);
+  --const-line: rgba(109, 40, 217, 0.38);
+  --node-shadow: 0 8px 20px rgba(28, 24, 48, 0.16);
+  --nova-star: #f5b84a;
+  --nova-flash: #ffc94d;
+  --hero-light-o: 1;
+  --hero-dark-o: 0;
 }
 
 .dark {
-  --iris-indigo: oklch(0.76 0.21 287);
-
-  --background: oklch(0.135 0.04 285);
-  --foreground: oklch(0.97 0.012 270);
-
-  --card: oklch(0.19 0.052 285);
-  --card-foreground: oklch(0.97 0.012 270);
-  --popover: oklch(0.19 0.052 285);
-  --popover-foreground: oklch(0.97 0.012 270);
-
-  --primary: oklch(0.78 0.18 287);
-  --primary-foreground: oklch(0.135 0.04 285);
-  --secondary: oklch(0.245 0.055 285);
-  --secondary-foreground: oklch(0.97 0.012 270);
-  --muted: oklch(0.225 0.05 285);
-  --muted-foreground: oklch(0.74 0.04 280);
-  --accent: oklch(0.32 0.08 285);
-  --accent-foreground: oklch(0.97 0.012 270);
-
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.76 0.21 287);
-
-  --sidebar: oklch(0.155 0.045 285);
-  --sidebar-foreground: oklch(0.92 0.02 270);
-  --sidebar-primary: oklch(0.78 0.18 287);
-  --sidebar-primary-foreground: oklch(0.135 0.04 285);
-  --sidebar-accent: oklch(0.28 0.085 285);
-  --sidebar-accent-foreground: oklch(0.98 0.015 270);
-  --sidebar-border: oklch(1 0 0 / 9%);
-  --sidebar-ring: oklch(0.76 0.21 287);
-
-  --gradient-chrome: linear-gradient(
-    120deg,
-    oklch(0.22 0.07 290),
-    oklch(0.2 0.065 260),
-    oklch(0.22 0.06 220)
-  );
-  --bg-aurora:
-    radial-gradient(1200px 700px at 85% -10%, oklch(0.52 0.23 290 / 0.5), transparent 60%),
-    radial-gradient(1000px 600px at -10% 10%, oklch(0.46 0.24 305 / 0.45), transparent 60%),
-    radial-gradient(900px 600px at 50% 110%, oklch(0.42 0.17 220 / 0.4), transparent 60%);
-  --glass-bg: color-mix(in oklab, var(--card) 68%, transparent);
-  --glass-border: color-mix(in oklab, white 9%, transparent);
-  --shadow-glow: 0 20px 60px -20px color-mix(in oklab, var(--iris-indigo) 65%, transparent);
-  --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.4), 0 8px 24px -12px oklch(0 0 0 / 0.55);
+  /* Nova palette — dark (Night) */
+  --background: #0b0a10;
+  --foreground: #edeaf7;
+  --card: #16131f;
+  --card-foreground: #edeaf7;
+  --popover: #16131f;
+  --popover-foreground: #edeaf7;
+  --primary: #c4b5fd;
+  --primary-foreground: #16131f;
+  --secondary: #1c1830;
+  --secondary-foreground: #edeaf7;
+  --muted: #1c1830;
+  --muted-foreground: #a9a3bf;
+  --accent: #1c1830;
+  --accent-foreground: #edeaf7;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.14);
+  --ring: #c4b5fd;
+  --sidebar: #16131f;
+  --sidebar-foreground: #edeaf7;
+  --sidebar-primary: #c4b5fd;
+  --sidebar-primary-foreground: #16131f;
+  --sidebar-accent: #1c1830;
+  --sidebar-accent-foreground: #edeaf7;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #c4b5fd;
+  --surface-2: #1c1830;
+  --nv-accent: #c4b5fd;
+  --nv-accent-ink: #16131f;
+  --line-strong: rgba(196, 181, 253, 0.45);
+  --pill-line: rgba(255, 255, 255, 0.28);
+  --pill-hover: rgba(255, 255, 255, 0.08);
+  --glass: rgba(11, 10, 16, 0.78);
+  --shadow: rgba(0, 0, 0, 0.45);
+  --hero-fg: #ffffff;
+  --hero-muted: #cfc9e4;
+  --hero-muted-2: #a9a3bf;
+  --hero-eyebrow: #ddd6fe;
+  --hero-eyebrow-bg: rgba(139, 92, 246, 0.14);
+  --hero-eyebrow-line: rgba(221, 214, 254, 0.3);
+  --hero-btn-bg: #c4b5fd;
+  --hero-btn-ink: #16131f;
+  --hero-ghost-line: rgba(255, 255, 255, 0.28);
+  --hero-fade: rgba(11, 10, 16, 0);
+  --const-line: rgba(196, 181, 253, 0.4);
+  --node-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+  --nova-star: #ffffff;
+  --nova-flash: #ffffff;
+  --hero-light-o: 0;
+  --hero-dark-o: 1;
 }
 
 @layer base {
@@ -173,8 +179,9 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    background-image: var(--bg-aurora);
-    background-attachment: fixed;
+    transition:
+      background-color 700ms ease,
+      color 700ms ease;
   }
 
   h1,
@@ -188,41 +195,258 @@
   }
 }
 
-@layer utilities {
-  .text-vapor {
-    background: var(--gradient-vapor);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
+/* Nova motion — hero sky, constellation and About letter field */
+@layer components {
+  .nv-tw {
+    animation: nvTw 4.2s ease-in-out infinite;
+  }
+  .nv-drift {
+    animation: nvDrift 70s ease-in-out infinite alternate;
+  }
+  .nv-pulse {
+    animation: nvPulse 5s ease-in-out infinite;
+  }
+  .nv-shoot {
+    position: absolute;
+    width: 180px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), #ffffff);
+    opacity: 0;
+    animation: nvShoot 11s ease-in infinite;
+  }
+  .nv-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: nvDraw 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  .nv-flow {
+    stroke-dasharray: 0.16 3;
+    stroke-dashoffset: 0.16;
+    opacity: 0;
+    animation: nvFlow 2.2s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  }
+  .nv-splat {
+    opacity: 0;
+    animation: nvSplat 1.2s ease-out both;
+  }
+  .nv-pop {
+    animation: nvPop 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .nv-card {
+    transition:
+      transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      border-color 200ms,
+      box-shadow 200ms,
+      background-color 700ms ease,
+      color 700ms ease;
+  }
+  .nv-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--line-strong);
+    box-shadow: 0 14px 34px var(--shadow);
+  }
+  .nv-pill {
+    transition: background-color 120ms;
+  }
+  .nv-pill:hover {
+    background-color: var(--pill-hover);
   }
 
-  .bg-vapor {
-    background: var(--gradient-vapor);
+  /* Parallax layers read the scroll position from --nv-sy (set by useScrollVar). */
+  .nv-par {
+    transform: translate3d(0, calc(var(--nv-sy, 0) * var(--k) * 1px), 0);
   }
 
-  .bg-chrome {
-    background: var(--gradient-chrome);
+  .nv-field {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    line-height: 1.9;
+    white-space: pre;
+    overflow: hidden;
+    user-select: none;
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
   }
-
-  .shadow-glow {
-    box-shadow: var(--shadow-glow);
+  .nv-noise {
+    color: var(--muted-foreground);
+    opacity: 0.32;
+    transition: opacity 300ms;
   }
-
-  .shadow-soft {
-    box-shadow: var(--shadow-soft);
+  .nv-field.is-dim .nv-noise {
+    opacity: 0.14;
   }
-
-  .glass {
-    background: var(--glass-bg);
-    backdrop-filter: blur(14px) saturate(160%);
-    -webkit-backdrop-filter: blur(14px) saturate(160%);
-    border: 1px solid var(--glass-border);
+  .nv-row {
+    width: max-content;
+    animation: nvMarq linear infinite;
+    will-change: transform;
   }
-
-  .ring-iris {
+  .nv-field.is-dim .nv-row,
+  .nv-field:has(.nv-name:hover) .nv-row {
+    animation-play-state: paused;
+  }
+  .nv-name {
+    font-weight: 700;
+    color: var(--foreground);
+    border-radius: 4px;
+    padding: 2px 0;
+    transition:
+      background-color 160ms,
+      color 160ms,
+      box-shadow 160ms;
+  }
+  .nv-name.is-member {
+    color: var(--nv-accent);
+  }
+  .nv-name:hover,
+  .nv-name.is-on {
+    background: var(--nv-accent);
+    color: var(--nv-accent-ink);
     box-shadow:
-      0 0 0 1px color-mix(in oklab, var(--iris-indigo) 25%, transparent),
-      0 20px 60px -25px color-mix(in oklab, var(--iris-indigo) 35%, transparent);
+      0 0 0 4px var(--nv-accent),
+      0 0 28px var(--nv-accent);
+  }
+  .nv-crew {
+    transition:
+      border-color 160ms,
+      transform 160ms,
+      background-color 700ms ease;
+  }
+  .nv-crew:hover,
+  .nv-crew:focus-visible,
+  .nv-crew.is-on {
+    border-color: var(--line-strong);
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes nvTw {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes nvDrift {
+  from {
+    transform: translateX(-2%);
+  }
+  to {
+    transform: translateX(2%);
+  }
+}
+@keyframes nvPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.08);
+  }
+}
+@keyframes nvShoot {
+  0%,
+  80% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-24deg);
+  }
+  82% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0;
+    transform: translate(-460px, 205px) rotate(-24deg);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes nvDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes nvFlow {
+  0% {
+    stroke-dashoffset: 0.16;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  70% {
+    stroke-dashoffset: -1;
+    opacity: 1;
+  }
+  78%,
+  100% {
+    stroke-dashoffset: -1;
+    opacity: 0;
+  }
+}
+@keyframes nvSplat {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  25% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+@keyframes nvPop {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.94);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes nvMarq {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-tw,
+  .nv-drift,
+  .nv-pulse,
+  .nv-shoot,
+  .nv-draw,
+  .nv-splat,
+  .nv-pop,
+  .nv-row {
+    animation: none;
+  }
+  .nv-draw {
+    stroke-dashoffset: 0;
+  }
+  .nv-flow {
+    animation: none;
+    stroke-dasharray: none;
+    opacity: 0.7;
+  }
+  .nv-card,
+  .nv-crew {
+    transition: none;
+  }
+  body {
+    transition: none;
   }
 }

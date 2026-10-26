@@ -1,0 +1,167 @@
+{
+  "generatedAt": "2026-10-16",
+  "members": [
+    "chamltn-cf",
+    "daucuong",
+    "dutq-cf",
+    "emtyty",
+    "haht-cf",
+    "lephuong123",
+    "linh-cf",
+    "manhvu1212"
+  ],
+  "people": [
+    {
+      "login": "linh-cf",
+      "name": "Linh Nguyen",
+      "id": 198531443,
+      "repos": {
+        "nmtr": 32,
+        "lunar-calendar-vietnam": 14,
+        "NovaPad": 72,
+        "Lumia": 10,
+        "NovaKey": 42,
+        "claude-token-monitor": 12,
+        "NovaFinder": 56,
+        "NovaGitX": 61,
+        "Nova Suite web": 3,
+        "Nova Cirrus": 1,
+        "NovaProxy": 9
+      }
+    },
+    {
+      "login": "daucuong",
+      "name": "Cuong Dau",
+      "id": 5211746,
+      "repos": {
+        "nmtr": 19,
+        "lunar-calendar-vietnam": 1,
+        "NovaPad": 44,
+        "NovaKey": 38,
+        "claude-token-monitor": 8,
+        "NovaFinder": 29,
+        "NovaGitX": 8,
+        "NovaClipboard": 8,
+        "Nova Suite web": 16,
+        "NovaProxy": 15
+      }
+    },
+    {
+      "login": "emtyty",
+      "name": "Em TyTy",
+      "id": 68627852,
+      "repos": {
+        "nmtr": 3,
+        "NovaPad": 1,
+        "Lumia": 3,
+        "NovaKey": 17,
+        "claude-token-monitor": 5,
+        "NovaFinder": 7,
+        "NovaGitX": 17,
+        "Nova Suite web": 1,
+        "Nova Cirrus": 3,
+        "NovaProxy": 7
+      }
+    },
+    {
+      "login": "haht-cf",
+      "name": "HaHT",
+      "id": 94820602,
+      "repos": {
+        "NovaPad": 112,
+        "Lumia": 10,
+        "NovaProxy": 73
+      }
+    },
+    {
+      "login": "hafht",
+      "name": "hafht",
+      "id": 117139757,
+      "repos": {
+        "NovaPad": 6
+      }
+    },
+    {
+      "login": "livlign",
+      "name": "livlign",
+      "id": 67087668,
+      "repos": {
+        "NovaPad": 2
+      }
+    },
+    {
+      "login": "manhvu1212",
+      "name": "Vu Nguyen Manh",
+      "id": 16315775,
+      "repos": {
+        "Lumia": 274,
+        "claude-token-monitor": 1,
+        "Nova Suite web": 1
+      }
+    },
+    {
+      "login": "lephuong123",
+      "name": "phuonglq.dev",
+      "id": 73150330,
+      "repos": {
+        "Lumia": 25
+      }
+    },
+    {
+      "login": "dutq-cf",
+      "name": "Du Tran",
+      "id": 102718259,
+      "repos": {
+        "Lumia": 14
+      }
+    },
+    {
+      "login": "phuonglq-cf",
+      "name": "Phương Lê",
+      "id": 281589074,
+      "repos": {
+        "Lumia": 2
+      }
+    },
+    {
+      "login": "mailt-cf",
+      "name": "mailt-cf",
+      "id": 281822050,
+      "repos": {
+        "claude-token-monitor": 10
+      }
+    },
+    {
+      "login": "hueanmy",
+      "name": "Meii",
+      "id": 20430626,
+      "repos": {
+        "claude-token-monitor": 1
+      }
+    },
+    {
+      "login": "chamltn-cf",
+      "name": "ChamLTN",
+      "id": 278873773,
+      "repos": {
+        "NovaFinder": 1
+      }
+    },
+    {
+      "login": "anhntv-cf",
+      "name": "Van Anh",
+      "id": 210330644,
+      "repos": {
+        "NovaGitX": 1
+      }
+    },
+    {
+      "login": "nch180297",
+      "name": "Hau Nguyen",
+      "id": 44862158,
+      "repos": {
+        "NovaClipboard": 23
+      }
+    }
+  ]
+}

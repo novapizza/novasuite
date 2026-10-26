@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Theme = "light" | "dark";
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string }) {
   const [theme, setTheme] = useState<Theme | null>(null);
 
   useEffect(() => {
@@ -25,14 +26,17 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      aria-label="Toggle theme"
-      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card/80 text-foreground transition-colors hover:bg-card"
+      aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+      className={cn(
+        "inline-flex h-10 w-10 items-center justify-center rounded-xl border border-current/15 text-current transition-colors hover:bg-pill-hover",
+        className,
+      )}
     >
       {/* Render nothing until mounted — pre-hydration the inline theme script may already have set .dark, so we read from the DOM to avoid an icon flicker. */}
       {theme === "dark" ? (
-        <Sun className="h-4 w-4" />
+        <Sun className="h-[18px] w-[18px]" strokeWidth={1.6} />
       ) : theme === "light" ? (
-        <Moon className="h-4 w-4" />
+        <Moon className="h-[18px] w-[18px]" strokeWidth={1.6} />
       ) : null}
     </button>
   );
