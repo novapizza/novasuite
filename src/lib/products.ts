@@ -41,6 +41,10 @@ export type AppHue = {
   g2: string;
 };
 
+// One app window capture on the detail page. Files live under
+// public/screenshots/<slug>/<platform>/, captured at 2x (made by scripts/screenshots.mjs).
+export type Screenshot = { src: string; alt: string; caption: string };
+
 export type Product = {
   slug: ProductSlug;
   repo: string;
@@ -60,6 +64,8 @@ export type Product = {
   long: string;
   uses: { title: string; body: string }[];
   platforms: Platform[];
+  // Real captures per platform; a platform without any keeps the placeholder frame.
+  screenshots?: Partial<Record<Platform, Screenshot[]>>;
   downloads: { label: string; href: string | null; platform: Platform; arch?: "x64" | "arm64" }[];
   release?: {
     baseUrl: string;
@@ -72,6 +78,38 @@ export type Product = {
     format?: ManifestFormat;
   };
 };
+
+const novapadScenes = [
+  {
+    file: "editor",
+    caption: "Monaco editor",
+    alt: "NovaPad editing a TypeScript file with syntax highlighting and the NovaPad theme",
+  },
+  {
+    file: "json-records",
+    caption: "Large JSON",
+    alt: "NovaPad's record viewer browsing a 58 MB NDJSON file of 230,000 records",
+  },
+  {
+    file: "csv",
+    caption: "CSV preview",
+    alt: "NovaPad showing a CSV file as a sortable, filterable table in Table Lens",
+  },
+  {
+    file: "markdown",
+    caption: "Markdown preview",
+    alt: "NovaPad rendering a Markdown file with headings, a table and a quote",
+  },
+];
+
+function novapadScreenshots(platform: "mac" | "windows"): Screenshot[] {
+  const os = platform === "mac" ? "macOS" : "Windows";
+  return novapadScenes.map((s) => ({
+    src: `/screenshots/novapad/${platform}/${s.file}.webp`,
+    caption: s.caption,
+    alt: `${s.alt}, on ${os}`,
+  }));
+}
 
 export const productGroups: { id: ProductGroup; title: string; description: string }[] = [
   { id: "dev", title: "Developer tools", description: "Edit, version, debug and trace." },
@@ -126,6 +164,10 @@ export const products: Product[] = [
       },
     ],
     platforms: ["mac", "windows"],
+    screenshots: {
+      mac: novapadScreenshots("mac"),
+      windows: novapadScreenshots("windows"),
+    },
     release: {
       baseUrl: "https://pub-d2278ebfc6e74887b1c58c069c7119e7.r2.dev",
       manifests: {

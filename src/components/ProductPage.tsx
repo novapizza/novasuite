@@ -3,6 +3,7 @@ import { ChevronLeft, CircleCheck, Clock, Github } from "lucide-react";
 import { useEffect, useId, useState, type CSSProperties } from "react";
 import { AppIcon } from "@/components/brand/AppIcon";
 import { PlatformIcon } from "@/components/brand/PlatformIcon";
+import { ScreenshotGallery } from "@/components/ScreenshotGallery";
 import type { Platform, Product } from "@/lib/products";
 import { fetchLatestReleaseManifest, isReleased, platformLabels, products } from "@/lib/products";
 import { cn } from "@/lib/utils";
@@ -317,40 +318,7 @@ export function ProductPage({ product }: { product: Product }) {
         </aside>
 
         <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-10">
-          {/* Screenshot slot: a framed placeholder until real screenshots are added. */}
-          <div
-            className="relative flex aspect-video items-center justify-center overflow-hidden rounded-[20px] border border-border"
-            style={{
-              background: `radial-gradient(900px 420px at 28% 18%, ${glow}, rgba(0,0,0,0) 62%), #0F0D17`,
-            }}
-          >
-            <div className="flex h-[80%] w-[86%] flex-col sm:h-[74%] sm:w-[80%] overflow-hidden rounded-[14px] border border-white/12 bg-white/[0.04]">
-              <div className="flex gap-[7px] border-b border-white/8 px-3.5 py-3">
-                <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
-              </div>
-              <div className="flex min-h-0 flex-1">
-                <div className="flex w-[22%] flex-col gap-2.5 border-r border-white/8 px-3 py-4">
-                  <span
-                    className="h-2 w-[70%] rounded opacity-70"
-                    style={{ background: product.hue.c300 }}
-                  />
-                  <span className="h-2 w-[85%] rounded bg-white/14" />
-                  <span className="h-2 w-[60%] rounded bg-white/14" />
-                  <span className="h-2 w-[75%] rounded bg-white/14" />
-                </div>
-                <div className="flex flex-1 flex-col items-center justify-center gap-3.5">
-                  <span className="scale-[0.6] sm:scale-100">
-                    <AppIcon product={product} size={96} />
-                  </span>
-                  <span className="hidden font-mono text-xs text-white/55 sm:inline">
-                    Screenshot coming soon
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ScreenshotGallery product={product} platform={platform} />
 
           <div className="flex flex-col gap-[18px]">
             <h2 className="m-0 font-display text-[26px] font-semibold tracking-[-0.02em]">
