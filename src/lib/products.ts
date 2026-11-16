@@ -129,14 +129,44 @@ const novaproxyScenes = [
     alt: "NovaProxy's traffic inspector listing live requests by app and domain, with an MCP tools/call request and its JSON-RPC response open",
   },
   {
-    file: "insights",
-    caption: "Insights",
-    alt: "NovaProxy's Insights page with request, failure and latency totals and a warning about an expired token",
+    file: "breakpoints",
+    caption: "Breakpoints",
+    alt: "NovaProxy pausing a PUT request at a breakpoint so its headers can be edited before it continues",
   },
   {
     file: "rules",
     caption: "Rules",
     alt: "NovaProxy's Rules page with a Map Remote rule to a staging API and a Block rule for telemetry",
+  },
+  {
+    file: "scripts",
+    caption: "Scripts",
+    alt: "NovaProxy's Scripts page with JavaScript onRequest and onResponse hooks that edit traffic",
+  },
+  {
+    file: "websocket",
+    caption: "WebSocket",
+    alt: "NovaProxy showing the sent and received messages of a WebSocket connection",
+  },
+  {
+    file: "timing",
+    caption: "Timing",
+    alt: "NovaProxy's timing breakdown of a request: DNS lookup, TCP connect, TLS handshake, waiting and download",
+  },
+  {
+    file: "insights",
+    caption: "Insights",
+    alt: "NovaProxy's Insights page with request, failure and latency totals and a warning about an expired token",
+  },
+  {
+    file: "mcp",
+    caption: "MCP for AI",
+    alt: "NovaProxy's MCP settings, which let Claude and other AI clients read captured traffic, with credentials hidden",
+  },
+  {
+    file: "certificates",
+    caption: "HTTPS certificate",
+    alt: "NovaProxy's certificate page with its trusted root CA and the hosts it tunnels without decrypting",
   },
   {
     file: "whats-new",
