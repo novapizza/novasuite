@@ -121,6 +121,68 @@ function novapadScreenshots(platform: "mac" | "windows"): Screenshot[] {
   }));
 }
 
+// NovaProxy's detail-page scenes, captured from the 0.9.0 UI with sample traffic.
+const novaproxyScenes = [
+  {
+    file: "flows",
+    caption: "Live flows",
+    alt: "NovaProxy's traffic inspector listing live requests by app and domain, with an MCP tools/call request and its JSON-RPC response open",
+  },
+  {
+    file: "breakpoints",
+    caption: "Breakpoints",
+    alt: "NovaProxy pausing a PUT request at a breakpoint so its headers can be edited before it continues",
+  },
+  {
+    file: "rules",
+    caption: "Rules",
+    alt: "NovaProxy's Rules page with a Map Remote rule to a staging API and a Block rule for telemetry",
+  },
+  {
+    file: "scripts",
+    caption: "Scripts",
+    alt: "NovaProxy's Scripts page with JavaScript onRequest and onResponse hooks that edit traffic",
+  },
+  {
+    file: "websocket",
+    caption: "WebSocket",
+    alt: "NovaProxy showing the sent and received messages of a WebSocket connection",
+  },
+  {
+    file: "timing",
+    caption: "Timing",
+    alt: "NovaProxy's timing breakdown of a request: DNS lookup, TCP connect, TLS handshake, waiting and download",
+  },
+  {
+    file: "insights",
+    caption: "Insights",
+    alt: "NovaProxy's Insights page with request, failure and latency totals and a warning about an expired token",
+  },
+  {
+    file: "mcp",
+    caption: "MCP for AI",
+    alt: "NovaProxy's MCP settings, which let Claude and other AI clients read captured traffic, with credentials hidden",
+  },
+  {
+    file: "certificates",
+    caption: "HTTPS certificate",
+    alt: "NovaProxy's certificate page with its trusted root CA and the hosts it tunnels without decrypting",
+  },
+  {
+    file: "whats-new",
+    caption: "What's New",
+    alt: "NovaProxy's What's New dialog listing the changes in version 0.9.0",
+  },
+];
+
+function novaproxyScreenshots(platform: "mac"): Screenshot[] {
+  return novaproxyScenes.map((s) => ({
+    src: `/screenshots/novaproxy/${platform}/${s.file}.webp`,
+    caption: s.caption,
+    alt: `${s.alt}, on macOS`,
+  }));
+}
+
 export const productGroups: { id: ProductGroup; title: string; description: string }[] = [
   { id: "dev", title: "Developer tools", description: "Edit, version, debug and trace." },
   { id: "everyday", title: "Everyday utilities", description: "Small helpers for daily work." },
@@ -508,6 +570,8 @@ export const products: Product[] = [
       { title: "An open Proxyman alternative", body: "Free and open source, built on Tauri." },
     ],
     platforms: ["mac", "windows"],
+    // No Windows captures yet; that tab keeps the placeholder.
+    screenshots: { mac: novaproxyScreenshots("mac") },
     release: {
       baseUrl: "https://pub-4aa88a825303408b9dd0b955b27b5fc1.r2.dev",
       // One manifest covers both platforms — assets live under `platforms:` keys.
