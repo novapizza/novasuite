@@ -569,23 +569,40 @@ export const products: Product[] = [
       },
       { title: "An open Proxyman alternative", body: "Free and open source, built on Tauri." },
     ],
-    platforms: ["mac", "windows"],
+    platforms: ["mac", "windows", "linux"],
     screenshots: {
       mac: novaproxyScreenshots("mac"),
-      // No Windows captures yet; the Windows build runs the same UI, so it shows the Mac ones.
+      // No Windows or Linux captures yet; those builds run the same UI, so they show the Mac ones.
       windows: novaproxyScreenshots("mac"),
+      linux: novaproxyScreenshots("mac"),
     },
     release: {
       baseUrl: "https://pub-4aa88a825303408b9dd0b955b27b5fc1.r2.dev",
-      // One manifest covers both platforms — assets live under `platforms:` keys.
+      // One manifest covers every platform — assets live under `platforms:` keys
+      // (darwin-aarch64, windows-x86_64, linux-x86_64 for the AppImage, linux-x86_64-deb).
       manifests: {
         mac: "latest.yml",
         windows: "latest.yml",
+        linux: "latest.yml",
       },
     },
     downloads: [
       { label: "Download for Mac (Apple Silicon)", href: null, platform: "mac", arch: "arm64" },
       { label: "Download for Windows", href: null, platform: "windows", arch: "x64" },
+      {
+        label: "Download for Linux (AppImage)",
+        href: null,
+        platform: "linux",
+        arch: "x64",
+        packageType: ".AppImage",
+      },
+      {
+        label: "Download for Linux (.deb)",
+        href: null,
+        platform: "linux",
+        arch: "x64",
+        packageType: ".deb",
+      },
     ],
   },
   {
