@@ -570,8 +570,11 @@ export const products: Product[] = [
       { title: "An open Proxyman alternative", body: "Free and open source, built on Tauri." },
     ],
     platforms: ["mac", "windows"],
-    // No Windows captures yet; that tab keeps the placeholder.
-    screenshots: { mac: novaproxyScreenshots("mac") },
+    screenshots: {
+      mac: novaproxyScreenshots("mac"),
+      // No Windows captures yet; the Windows build runs the same UI, so it shows the Mac ones.
+      windows: novaproxyScreenshots("mac"),
+    },
     release: {
       baseUrl: "https://pub-4aa88a825303408b9dd0b955b27b5fc1.r2.dev",
       // One manifest covers both platforms — assets live under `platforms:` keys.
