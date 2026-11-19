@@ -517,10 +517,10 @@ export const products: Product[] = [
     },
     tagline: { lead: "Network diagnostics,", accent: "reimagined live." },
     description:
-      "A modern app that fuses continuous traceroute with real-time ping into a single live dashboard — per-hop stats, offline geolocation, and full session recording. Available on Windows.",
+      "A modern app that fuses continuous traceroute with real-time ping into a single live dashboard — per-hop stats, offline geolocation, and full session recording. Available on Mac and Windows.",
     blurb: "Live network.",
     short: "Live traceroute and ping, hop by hop.",
-    long: "nmtr is a network-diagnostics suite for Windows. At its core is a modern rewrite of WinMTR: continuous traceroute and real-time ping in a live dashboard, with per-hop statistics and geolocation.",
+    long: "nmtr is a network-diagnostics suite for Mac and Windows. At its core is a modern rewrite of WinMTR: continuous traceroute and real-time ping in a live dashboard, with per-hop statistics and geolocation.",
     uses: [
       {
         title: "Trace the route live",
@@ -532,14 +532,19 @@ export const products: Product[] = [
       },
       { title: "Watch the heartbeat", body: "A live chart of final-hop latency over the session." },
     ],
-    platforms: ["windows"],
+    platforms: ["mac", "windows"],
     release: {
       baseUrl: "https://pub-153a98778378495eb01f90435c7b392a.r2.dev",
       manifests: {
+        mac: "latest-mac.yml",
         windows: "latest.yml",
       },
     },
-    downloads: [{ label: "Download for Windows", href: null, platform: "windows" }],
+    downloads: [
+      { label: "Download for Mac (Apple Silicon)", href: null, platform: "mac", arch: "arm64" },
+      { label: "Download for Mac (Intel)", href: null, platform: "mac", arch: "x64" },
+      { label: "Download for Windows", href: null, platform: "windows" },
+    ],
   },
   {
     slug: "novaproxy",
