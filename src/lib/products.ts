@@ -394,22 +394,26 @@ export const products: Product[] = [
       "A modern Git client that visualizes branches the way you think about them — and stays out of your way the rest of the time.",
     blurb: "Git, graceful.",
     short: "A native-feeling Git client with a clear commit graph.",
-    long: "NovaGitX is a Git GUI inspired by GitExtensions and redesigned for Mac. See your branches as a lane graph, stage single hunks and review diffs without leaving the app.",
+    long: "NovaGitX is a Git GUI inspired by GitExtensions and redesigned for Mac and Windows. See your branches as a lane graph, stage single hunks and review diffs without leaving the app.",
     uses: [
       { title: "See the commit graph", body: "Branches drawn as lanes, in topological order." },
       { title: "Stage files and hunks", body: "Stage or unstage whole files or single hunks." },
       { title: "Review diffs", body: "A unified diff with line numbers and hunk-level staging." },
     ],
-    platforms: ["mac"],
+    platforms: ["mac", "windows"],
     release: {
       baseUrl: "https://pub-1841f7e00ed14c2da91ef9b585ba06e8.r2.dev",
       manifests: {
         mac: "latest-mac.yml",
+        windows: "latest.yml",
       },
     },
     downloads: [
       { label: "Download for Mac (Apple Silicon)", href: null, platform: "mac", arch: "arm64" },
       { label: "Download for Mac (Intel)", href: null, platform: "mac", arch: "x64" },
+      // Windows ships per-arch installers (`NovaGitX-<v>-x64-win.exe`, `-arm64-win.exe`).
+      { label: "Download for Windows (x64)", href: null, platform: "windows", arch: "x64" },
+      { label: "Download for Windows (ARM64)", href: null, platform: "windows", arch: "arm64" },
     ],
   },
   {
